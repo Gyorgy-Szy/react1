@@ -37,13 +37,27 @@ function initializeDatabase() {
       { lang: 'en', key: 'edit', value: 'Edit <1>src/App.tsx</1> and save to test HMR' },
       { lang: 'en', key: 'clickLogos', value: 'Click on the Vite and React logos to learn more' },
       { lang: 'en', key: 'language', value: 'Language' },
+      { lang: 'en', key: 'configuration', value: 'Configuration' },
+      { lang: 'en', key: 'general', value: 'General' },
+      { lang: 'en', key: 'theme', value: 'Theme' },
+      { lang: 'en', key: 'light', value: 'Light' },
+      { lang: 'en', key: 'dark', value: 'Dark' },
+      { lang: 'en', key: 'notifications', value: 'Notifications' },
+      { lang: 'en', key: 'enableNotifications', value: 'Enable notifications' },
       
       // Hungarian translations
       { lang: 'hu', key: 'title', value: 'Vite + React' },
       { lang: 'hu', key: 'count', value: 'számláló: {{count}}' },
       { lang: 'hu', key: 'edit', value: 'Szerkeszd a <1>src/App.tsx</1> fájlt és mentsd el a HMR teszteléséhez' },
       { lang: 'hu', key: 'clickLogos', value: 'Kattints a Vite és React logókra, hogy többet megtudj' },
-      { lang: 'hu', key: 'language', value: 'Nyelv' }
+      { lang: 'hu', key: 'language', value: 'Nyelv' },
+      { lang: 'hu', key: 'configuration', value: 'Beállítások' },
+      { lang: 'hu', key: 'general', value: 'Általános' },
+      { lang: 'hu', key: 'theme', value: 'Téma' },
+      { lang: 'hu', key: 'light', value: 'Világos' },
+      { lang: 'hu', key: 'dark', value: 'Sötét' },
+      { lang: 'hu', key: 'notifications', value: 'Értesítések' },
+      { lang: 'hu', key: 'enableNotifications', value: 'Értesítések engedélyezése' }
     ];
 
     const stmt = db.prepare(`
