@@ -1,16 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import { availableLanguages } from './i18n'
+import { getAvailableLanguages } from './i18n-backend'
+import LoadingSpinner from './components/LoadingSpinner'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [availableLanguages, setAvailableLanguages] = useState<Array<{code: string, name: string}>>([])
+  const [isChangingLanguage, setIsChangingLanguage] = useState(false)
   const { t, i18n } = useTranslation()
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng)
+  useEffect(() => {
+    const loadLanguages = async () => {
+      const languages = await getAvailableLanguages()
+      setAvailableLanguages(languages)
+    }
+    loadLanguages()
+  }, [])
+
+  const changeLanguage = async (lng: string) => {
+    if (lng === i18n.language) return // Don't reload if same language
+    
+    setIsChangingLanguage(true)
+    try {
+      await i18n.changeLanguage(lng)
+    } finally {
+      setIsChangingLanguage(false)
+    }
+  }
+
+  if (isChangingLanguage) {
+    return <LoadingSpinner message="Changing language..." />
   }
 
   return (
