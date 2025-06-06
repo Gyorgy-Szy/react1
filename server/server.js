@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { getTranslations, getAllLanguages } from './database.js';
+import { getTranslations, getAllLanguages, updateTranslation } from './database.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -44,6 +44,37 @@ app.get('/api/translations/:language', (req, res) => {
       });
     });
   }, 2000);
+});
+
+// Update a specific translation
+app.put('/api/translations/:language/:key', (req, res) => {
+  const { language, key } = req.params;
+  const { value } = req.body;
+  
+  if (!value) {
+    res.status(400).json({ error: 'Translation value is required' });
+    return;
+  }
+  
+  updateTranslation(language, key, value, (err, result) => {
+    if (err) {
+      console.error('Error updating translation:', err);
+      if (err.message === 'Translation not found') {
+        res.status(404).json({ error: 'Translation not found' });
+      } else {
+        res.status(500).json({ error: 'Failed to update translation' });
+      }
+      return;
+    }
+    
+    res.json({ 
+      success: true,
+      language,
+      key,
+      value,
+      changes: result.changes
+    });
+  });
 });
 
 // Health check endpoint

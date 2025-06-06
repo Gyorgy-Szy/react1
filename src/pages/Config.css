@@ -11,25 +11,6 @@
   gap: 15px;
 }
 
-.back-button {
-  background: #646cff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.back-button:hover {
-  background: #535bf2;
-}
-
 .config-header h1 {
   margin: 0;
   color: #213547;
@@ -87,4 +68,92 @@
 .config-item input[type="checkbox"] {
   width: 18px;
   height: 18px;
+}
+
+.save-message {
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+  font-weight: 500;
+}
+
+.save-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.save-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.loading {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.translations-list {
+  margin-top: 15px;
+}
+
+.translation-item {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 15px 0;
+}
+
+.translation-item:last-child {
+  border-bottom: none;
+}
+
+.translation-key {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.translation-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.translation-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background: white;
+}
+
+.translation-input input::placeholder {
+  color: #999;
+}
+
+.translation-input input:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.1);
+}
+
+.save-btn {
+  background: #646cff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+  background: #535bf2;
 }

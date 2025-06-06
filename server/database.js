@@ -110,4 +110,26 @@ export function getAllLanguages(callback) {
   });
 }
 
+export function updateTranslation(languageCode, translationKey, translationValue, callback) {
+  const query = `
+    UPDATE translations 
+    SET translation_value = ? 
+    WHERE language_code = ? AND translation_key = ?
+  `;
+  
+  db.run(query, [translationValue, languageCode, translationKey], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    if (this.changes === 0) {
+      callback(new Error('Translation not found'), null);
+      return;
+    }
+    
+    callback(null, { success: true, changes: this.changes });
+  });
+}
+
 export default db;
