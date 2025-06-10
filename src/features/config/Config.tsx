@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getAvailableLanguages } from '../i18n-backend'
-import Header from '../components/Header'
-import TranslationInput from '../components/TranslationInput'
-import LoadingSpinner from '../components/LoadingSpinner'
+import { getAvailableLanguages } from '../../i18n-backend'
+import Header from '../../components/Header'
+import TranslationInput from './components/TranslationInput'
+import LoadingSpinner from '../../components/LoadingSpinner'
 
 interface Translation {
   key: string
@@ -11,7 +11,7 @@ interface Translation {
 }
 
 function Config() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['config', 'general'])
   const [availableLanguages, setAvailableLanguages] = useState<Array<{code: string, name: string}>>([])
   const [selectedLanguage, setSelectedLanguage] = useState('')
   const [translations, setTranslations] = useState<Translation[]>([])
@@ -42,10 +42,16 @@ function Config() {
       const response = await fetch(`/api/translations/${language}`)
       if (response.ok) {
         const data = await response.json()
-        const translationArray = Object.entries(data.translations).map(([key, value]) => ({
-          key,
-          value: value as string
-        }))
+        // Flatten the namespaced translations for editing
+        const translationArray: Translation[] = []
+        Object.entries(data.translations).forEach(([namespace, translations]) => {
+          Object.entries(translations as Record<string, string>).forEach(([key, value]) => {
+            translationArray.push({
+              key: `${namespace}:${key}`,
+              value: value as string
+            })
+          })
+        })
         setTranslations(translationArray)
         setSaveMessage('')
       }
@@ -58,7 +64,13 @@ function Config() {
 
   const saveTranslation = async (key: string, value: string) => {
     try {
-      const response = await fetch(`/api/translations/${selectedLanguage}/${key}`, {
+      // Parse namespace and key from the full key (namespace:key)
+      const [namespace, translationKey] = key.split(':')
+      if (!namespace || !translationKey) {
+        throw new Error('Invalid key format')
+      }
+      
+      const response = await fetch(`/api/translations/${selectedLanguage}/${namespace}/${translationKey}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -70,11 +82,11 @@ function Config() {
         setTranslations(prev => 
           prev.map(t => t.key === key ? { ...t, value } : t)
         )
-        setSaveMessage(`Translation "${key}" saved successfully!`)
+        setSaveMessage(t('config:translationSaved', { key }))
         setSaveType('success')
         setTimeout(() => setSaveMessage(''), 3000)
       } else {
-        setSaveMessage(`Error saving translation "${key}"`)
+        setSaveMessage(t('config:translationError', { key }))
         setSaveType('error')
       }
     } catch (error) {
@@ -89,31 +101,31 @@ function Config() {
       <Header />
       <div className="page-content">
         <div className="page-header">
-          <h1 className="text-large">{t('configuration')}</h1>
+          <h1 className="text-large">{t('config:title')}</h1>
           <p className="text-muted">
-            Manage your application settings and translations
+            {t('config:subtitle')}
           </p>
         </div>
 
         <div className="card">
           <div className="mb-3">
             <h2 className="text-medium flex items-center gap-small">
-              🌐 Translation Editor
+              🌐 {t('config:translationEditor')}
             </h2>
             <p className="text-muted text-small">
-              Edit translations for different languages. Changes are saved automatically.
+              {t('config:translationEditorDesc')}
             </p>
           </div>
           
           <div className="mb-2">
             <div className="flex items-center gap-small mb-2">
-              <span className="text-small text-bold">Select Language:</span>
+              <span className="text-small text-bold">{t('config:selectLanguage')}</span>
               <select 
                 value={selectedLanguage} 
                 onChange={(e) => setSelectedLanguage(e.target.value)}
                 className="select select-lang"
               >
-                <option value="">Choose language</option>
+                <option value="">{t('config:chooseLanguage')}</option>
                 {availableLanguages.map(lang => (
                   <option key={lang.code} value={lang.code}>
                     {lang.name}
@@ -134,7 +146,7 @@ function Config() {
             )}
 
             {isLoading ? (
-              <LoadingSpinner message="Loading translations..." />
+              <LoadingSpinner message={t('config:loadingTranslations')} />
             ) : (
               <div>
                 {translations.map(translation => (
@@ -148,7 +160,7 @@ function Config() {
                 ))}
                 {translations.length === 0 && (
                   <div className="empty-state">
-                    No translations found for this language.
+                    {t('config:noTranslations')}
                   </div>
                 )}
               </div>

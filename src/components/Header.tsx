@@ -8,7 +8,7 @@ import { isRTLLanguage } from '../utils/rtl'
 function Header() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation('general')
   const [availableLanguages, setAvailableLanguages] = useState<Array<{code: string, name: string}>>([])
   const [isChangingLanguage, setIsChangingLanguage] = useState(false)
 
@@ -44,7 +44,7 @@ function Header() {
           {!isHomePage && (
             <button
               onClick={() => navigate('/')}
-              title="Home"
+              title={t('home')}
               className="btn"
             >
               🏠
@@ -79,7 +79,7 @@ function Header() {
           
           <button
             onClick={() => navigate('/config')}
-            title={t('configuration')}
+            title="Configuration"
             className="btn"
           >
             ⚙️

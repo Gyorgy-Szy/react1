@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { getTranslations, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote } from './database.js';
+import { getTranslations, getTranslationsByNamespace, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote } from './database.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -20,35 +20,59 @@ app.get('/api/languages', (req, res) => {
   });
 });
 
-// Get translations for a specific language
+// Get translations for a specific language and namespace
+app.get('/api/translations/:language/:namespace', (req, res) => {
+  const { language, namespace } = req.params;
+  
+  getTranslations(language, namespace, (err, translations) => {
+    if (err) {
+      console.error('Error fetching translations:', err);
+      res.status(500).json({ error: 'Failed to fetch translations' });
+      return;
+    }
+    
+    if (Object.keys(translations).length === 0) {
+      res.status(404).json({ error: 'Namespace not found' });
+      return;
+    }
+    
+    res.json({ 
+      language,
+      namespace,
+      translations 
+    });
+  });
+});
+
+// Get all translations for a specific language (grouped by namespace)
 app.get('/api/translations/:language', (req, res) => {
   const { language } = req.params;
   
   // Add 2 second delay to simulate loading
   setTimeout(() => {
-    getTranslations(language, (err, translations) => {
+    getTranslationsByNamespace(language, (err, translationsByNamespace) => {
       if (err) {
         console.error('Error fetching translations:', err);
         res.status(500).json({ error: 'Failed to fetch translations' });
         return;
       }
       
-      if (Object.keys(translations).length === 0) {
+      if (Object.keys(translationsByNamespace).length === 0) {
         res.status(404).json({ error: 'Language not found' });
         return;
       }
       
       res.json({ 
         language,
-        translations 
+        translations: translationsByNamespace 
       });
     });
   }, 2000);
 });
 
 // Update a specific translation
-app.put('/api/translations/:language/:key', (req, res) => {
-  const { language, key } = req.params;
+app.put('/api/translations/:language/:namespace/:key', (req, res) => {
+  const { language, namespace, key } = req.params;
   const { value } = req.body;
   
   if (!value) {
@@ -56,7 +80,7 @@ app.put('/api/translations/:language/:key', (req, res) => {
     return;
   }
   
-  updateTranslation(language, key, value, (err, result) => {
+  updateTranslation(language, namespace, key, value, (err, result) => {
     if (err) {
       console.error('Error updating translation:', err);
       if (err.message === 'Translation not found') {
@@ -70,6 +94,7 @@ app.put('/api/translations/:language/:key', (req, res) => {
     res.json({ 
       success: true,
       language,
+      namespace,
       key,
       value,
       changes: result.changes

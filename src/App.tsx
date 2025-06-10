@@ -6,7 +6,7 @@ import Header from './components/Header'
 
 function App() {
   const [count, setCount] = useState(0)
-  const { t } = useTranslation()
+  const { t } = useTranslation('general')
 
   return (
     <div className="page">
@@ -64,7 +64,7 @@ function App() {
               </div>
               
               <div className="text-center text-small text-muted mt-2">
-                <Trans i18nKey="edit">
+                <Trans i18nKey="editCode">
                   Edit <code>src/App.tsx</code> and save to test HMR
                 </Trans>
               </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { isRTLLanguage } from '../utils/rtl'
+import { useTranslation } from 'react-i18next'
+import { isRTLLanguage } from '../../../utils/rtl'
 
 interface TranslationInputProps {
   translationKey: string
@@ -9,6 +10,7 @@ interface TranslationInputProps {
 }
 
 export default function TranslationInput({ translationKey, value, selectedLanguage, onSave }: TranslationInputProps) {
+  const { t } = useTranslation('general')
   const [isEditing, setIsEditing] = useState(false)
   const [isLoadingEdit, setIsLoadingEdit] = useState(false)
   const [editValue, setEditValue] = useState(value)
@@ -36,7 +38,16 @@ export default function TranslationInput({ translationKey, value, selectedLangua
         const response = await fetch(`/api/translations/en`)
         if (response.ok) {
           const data = await response.json()
-          setEnglishValue(data.translations[translationKey] || '')
+          // Handle namespaced translations
+          let englishTranslation = ''
+          if (translationKey.includes(':')) {
+            const [namespace, key] = translationKey.split(':')
+            englishTranslation = data.translations[namespace]?.[key] || ''
+          } else {
+            // Fallback for old format
+            englishTranslation = data.translations[translationKey] || ''
+          }
+          setEnglishValue(englishTranslation)
         }
       } catch (error) {
         console.error('Error fetching English translation:', error)
@@ -64,7 +75,7 @@ export default function TranslationInput({ translationKey, value, selectedLangua
             <button
               onClick={handleEdit}
               className="btn"
-              title="Edit"
+              title={t('edit')}
             >
               ✏️
             </button>
@@ -99,13 +110,13 @@ export default function TranslationInput({ translationKey, value, selectedLangua
                 onClick={handleSave}
                 className="btn-save"
               >
-                ✅ Save
+                ✅ {t('save')}
               </button>
               <button
                 onClick={handleCancel}
                 className="btn-cancel"
               >
-                ❌ Cancel
+                ❌ {t('cancel')}
               </button>
             </div>
           </div>

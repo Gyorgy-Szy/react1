@@ -18,14 +18,15 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 function initializeDatabase() {
   db.serialize(() => {
-    // Create translations table
+    // Create translations table with namespace support
     db.run(`
       CREATE TABLE IF NOT EXISTS translations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         language_code TEXT NOT NULL,
+        namespace TEXT NOT NULL DEFAULT 'general',
         translation_key TEXT NOT NULL,
         translation_value TEXT NOT NULL,
-        UNIQUE(language_code, translation_key)
+        UNIQUE(language_code, namespace, translation_key)
       )
     `);
 
@@ -39,98 +40,196 @@ function initializeDatabase() {
       )
     `);
 
-    // Insert initial translations
+    // Insert initial namespaced translations
     const translations = [
-      // English translations
-      { lang: 'en', key: 'title', value: 'Vite + React' },
-      { lang: 'en', key: 'count', value: 'count is {{count}}' },
-      { lang: 'en', key: 'edit', value: 'Edit <1>src/App.tsx</1> and save to test HMR' },
-      { lang: 'en', key: 'clickLogos', value: 'Click on the Vite and React logos to learn more' },
-      { lang: 'en', key: 'language', value: 'Language' },
-      { lang: 'en', key: 'configuration', value: 'Configuration' },
-      { lang: 'en', key: 'general', value: 'General' },
-      { lang: 'en', key: 'theme', value: 'Theme' },
-      { lang: 'en', key: 'light', value: 'Light' },
-      { lang: 'en', key: 'dark', value: 'Dark' },
-      { lang: 'en', key: 'notifications', value: 'Notifications' },
-      { lang: 'en', key: 'enableNotifications', value: 'Enable notifications' },
+      // General namespace - common UI elements
+      // English
+      { lang: 'en', namespace: 'general', key: 'save', value: 'Save' },
+      { lang: 'en', namespace: 'general', key: 'cancel', value: 'Cancel' },
+      { lang: 'en', namespace: 'general', key: 'edit', value: 'Edit' },
+      { lang: 'en', namespace: 'general', key: 'delete', value: 'Delete' },
+      { lang: 'en', namespace: 'general', key: 'loading', value: 'Loading...' },
+      { lang: 'en', namespace: 'general', key: 'language', value: 'Language' },
+      { lang: 'en', namespace: 'general', key: 'home', value: 'Home' },
+      { lang: 'en', namespace: 'general', key: 'title', value: 'Vite + React' },
+      { lang: 'en', namespace: 'general', key: 'count', value: 'count is {{count}}' },
+      { lang: 'en', namespace: 'general', key: 'editCode', value: 'Edit <1>src/App.tsx</1> and save to test HMR' },
+      { lang: 'en', namespace: 'general', key: 'clickLogos', value: 'Click on the Vite and React logos to learn more' },
       
-      // Hungarian translations
-      { lang: 'hu', key: 'title', value: 'Vite + React' },
-      { lang: 'hu', key: 'count', value: 'számláló: {{count}}' },
-      { lang: 'hu', key: 'edit', value: 'Szerkeszd a <1>src/App.tsx</1> fájlt és mentsd el a HMR teszteléséhez' },
-      { lang: 'hu', key: 'clickLogos', value: 'Kattints a Vite és React logókra, hogy többet megtudj' },
-      { lang: 'hu', key: 'language', value: 'Nyelv' },
-      { lang: 'hu', key: 'configuration', value: 'Beállítások' },
-      { lang: 'hu', key: 'general', value: 'Általános' },
-      { lang: 'hu', key: 'theme', value: 'Téma' },
-      { lang: 'hu', key: 'light', value: 'Világos' },
-      { lang: 'hu', key: 'dark', value: 'Sötét' },
-      { lang: 'hu', key: 'notifications', value: 'Értesítések' },
-      { lang: 'hu', key: 'enableNotifications', value: 'Értesítések engedélyezése' },
+      // Hungarian
+      { lang: 'hu', namespace: 'general', key: 'save', value: 'Mentés' },
+      { lang: 'hu', namespace: 'general', key: 'cancel', value: 'Mégse' },
+      { lang: 'hu', namespace: 'general', key: 'edit', value: 'Szerkesztés' },
+      { lang: 'hu', namespace: 'general', key: 'delete', value: 'Törlés' },
+      { lang: 'hu', namespace: 'general', key: 'loading', value: 'Betöltés...' },
+      { lang: 'hu', namespace: 'general', key: 'language', value: 'Nyelv' },
+      { lang: 'hu', namespace: 'general', key: 'home', value: 'Főoldal' },
+      { lang: 'hu', namespace: 'general', key: 'title', value: 'Vite + React' },
+      { lang: 'hu', namespace: 'general', key: 'count', value: 'számláló: {{count}}' },
+      { lang: 'hu', namespace: 'general', key: 'editCode', value: 'Szerkeszd a <1>src/App.tsx</1> fájlt és mentsd el a HMR teszteléséhez' },
+      { lang: 'hu', namespace: 'general', key: 'clickLogos', value: 'Kattints a Vite és React logókra, hogy többet megtudj' },
       
-      // Sindhi translations (in Arabic script)
-      { lang: 'sd', key: 'title', value: 'Vite + React' },
-      { lang: 'sd', key: 'count', value: 'شمار آهي {{count}}' },
-      { lang: 'sd', key: 'edit', value: '<1>src/App.tsx</1> کي تبديل ڪريو ۽ HMR ٽيسٽ ڪرڻ لاءِ محفوظ ڪريو' },
-      { lang: 'sd', key: 'clickLogos', value: 'وڌيڪ سکڻ لاءِ Vite ۽ React جي لوگو تي ڪلڪ ڪريو' },
-      { lang: 'sd', key: 'language', value: 'ٻولي' },
-      { lang: 'sd', key: 'configuration', value: 'ترتيبات' },
-      { lang: 'sd', key: 'general', value: 'عام' },
-      { lang: 'sd', key: 'theme', value: 'موضوع' },
-      { lang: 'sd', key: 'light', value: 'روشن' },
-      { lang: 'sd', key: 'dark', value: 'اونداهو' },
-      { lang: 'sd', key: 'notifications', value: 'اطلاعات' },
-      { lang: 'sd', key: 'enableNotifications', value: 'اطلاعات فعال ڪريو' }
+      // Sindhi
+      { lang: 'sd', namespace: 'general', key: 'save', value: 'محفوظ ڪريو' },
+      { lang: 'sd', namespace: 'general', key: 'cancel', value: 'منسوخ' },
+      { lang: 'sd', namespace: 'general', key: 'edit', value: 'تبديل ڪريو' },
+      { lang: 'sd', namespace: 'general', key: 'delete', value: 'ڊاهيو' },
+      { lang: 'sd', namespace: 'general', key: 'loading', value: 'لوڊ ٿي رهيو...' },
+      { lang: 'sd', namespace: 'general', key: 'language', value: 'ٻولي' },
+      { lang: 'sd', namespace: 'general', key: 'home', value: 'گهر' },
+      { lang: 'sd', namespace: 'general', key: 'title', value: 'Vite + React' },
+      { lang: 'sd', namespace: 'general', key: 'count', value: 'شمار آهي {{count}}' },
+      { lang: 'sd', namespace: 'general', key: 'editCode', value: '<1>src/App.tsx</1> کي تبديل ڪريو ۽ HMR ٽيسٽ ڪرڻ لاءِ محفوظ ڪريو' },
+      { lang: 'sd', namespace: 'general', key: 'clickLogos', value: 'وڌيڪ سکڻ لاءِ Vite ۽ React جي لوگو تي ڪلڪ ڪريو' },
+
+      // Config namespace - configuration page
+      // English
+      { lang: 'en', namespace: 'config', key: 'title', value: 'Configuration' },
+      { lang: 'en', namespace: 'config', key: 'subtitle', value: 'Manage your application settings and translations' },
+      { lang: 'en', namespace: 'config', key: 'translationEditor', value: 'Translation Editor' },
+      { lang: 'en', namespace: 'config', key: 'translationEditorDesc', value: 'Edit translations for different languages. Changes are saved automatically.' },
+      { lang: 'en', namespace: 'config', key: 'selectLanguage', value: 'Select Language:' },
+      { lang: 'en', namespace: 'config', key: 'chooseLanguage', value: 'Choose language' },
+      { lang: 'en', namespace: 'config', key: 'loadingTranslations', value: 'Loading translations...' },
+      { lang: 'en', namespace: 'config', key: 'noTranslations', value: 'No translations found for this language.' },
+      { lang: 'en', namespace: 'config', key: 'translationSaved', value: 'Translation "{{key}}" saved successfully!' },
+      { lang: 'en', namespace: 'config', key: 'translationError', value: 'Error saving translation "{{key}}"' },
+      
+      // Hungarian
+      { lang: 'hu', namespace: 'config', key: 'title', value: 'Beállítások' },
+      { lang: 'hu', namespace: 'config', key: 'subtitle', value: 'Alkalmazás beállítások és fordítások kezelése' },
+      { lang: 'hu', namespace: 'config', key: 'translationEditor', value: 'Fordítás szerkesztő' },
+      { lang: 'hu', namespace: 'config', key: 'translationEditorDesc', value: 'Fordítások szerkesztése különböző nyelveken. A módosítások automatikusan mentődnek.' },
+      { lang: 'hu', namespace: 'config', key: 'selectLanguage', value: 'Nyelv kiválasztása:' },
+      { lang: 'hu', namespace: 'config', key: 'chooseLanguage', value: 'Nyelv választása' },
+      { lang: 'hu', namespace: 'config', key: 'loadingTranslations', value: 'Fordítások betöltése...' },
+      { lang: 'hu', namespace: 'config', key: 'noTranslations', value: 'Nem találhatók fordítások ehhez a nyelvhez.' },
+      { lang: 'hu', namespace: 'config', key: 'translationSaved', value: 'A "{{key}}" fordítás sikeresen mentve!' },
+      { lang: 'hu', namespace: 'config', key: 'translationError', value: 'Hiba a "{{key}}" fordítás mentésekor' },
+      
+      // Sindhi
+      { lang: 'sd', namespace: 'config', key: 'title', value: 'ترتيبات' },
+      { lang: 'sd', namespace: 'config', key: 'subtitle', value: 'پنهنجي ايپليڪيشن جي سيٽنگس ۽ ترجمي جو انتظام ڪريو' },
+      { lang: 'sd', namespace: 'config', key: 'translationEditor', value: 'ترجمي ايڊيٽر' },
+      { lang: 'sd', namespace: 'config', key: 'translationEditorDesc', value: 'مختلف ٻولين لاءِ ترجما ايڊٽ ڪريو. تبديليون خودڪار طور محفوظ ٿين ٿيون.' },
+      { lang: 'sd', namespace: 'config', key: 'selectLanguage', value: 'ٻولي چونڊيو:' },
+      { lang: 'sd', namespace: 'config', key: 'chooseLanguage', value: 'ٻولي چونڊيو' },
+      { lang: 'sd', namespace: 'config', key: 'loadingTranslations', value: 'ترجما لوڊ ٿي رهيا آهن...' },
+      { lang: 'sd', namespace: 'config', key: 'noTranslations', value: 'هن ٻولي لاءِ ڪو ترجمو نه مليو.' },
+      { lang: 'sd', namespace: 'config', key: 'translationSaved', value: '"{{key}}" ترجمو ڪاميابيءَ سان محفوظ ٿيو!' },
+      { lang: 'sd', namespace: 'config', key: 'translationError', value: '"{{key}}" ترجمي کي محفوظ ڪرڻ ۾ خرابي' },
+
+      // Notes namespace - notes page
+      // English
+      { lang: 'en', namespace: 'notes', key: 'title', value: 'Notes' },
+      { lang: 'en', namespace: 'notes', key: 'subtitle', value: 'Keep track of your development notes and implementation tips' },
+      { lang: 'en', namespace: 'notes', key: 'developmentNotes', value: 'Development Notes' },
+      { lang: 'en', namespace: 'notes', key: 'notesDesc', value: 'Add, edit, and manage your notes. Click edit to modify existing notes.' },
+      { lang: 'en', namespace: 'notes', key: 'addNewNote', value: 'Add New Note' },
+      { lang: 'en', namespace: 'notes', key: 'enterNote', value: 'Enter your note...' },
+      { lang: 'en', namespace: 'notes', key: 'loadingNotes', value: 'Loading notes...' },
+      { lang: 'en', namespace: 'notes', key: 'noNotes', value: 'No notes found. Click "Add New Note" to create your first note.' },
+      { lang: 'en', namespace: 'notes', key: 'noteCreated', value: 'Note created successfully!' },
+      { lang: 'en', namespace: 'notes', key: 'noteUpdated', value: 'Note updated successfully!' },
+      { lang: 'en', namespace: 'notes', key: 'noteDeleted', value: 'Note deleted successfully!' },
+      { lang: 'en', namespace: 'notes', key: 'noteError', value: 'Error saving note' },
+      { lang: 'en', namespace: 'notes', key: 'deleteConfirm', value: 'Are you sure you want to delete this note?' },
+      
+      // Hungarian
+      { lang: 'hu', namespace: 'notes', key: 'title', value: 'Jegyzetek' },
+      { lang: 'hu', namespace: 'notes', key: 'subtitle', value: 'Fejlesztési jegyzetek és implementációs tippek nyilvántartása' },
+      { lang: 'hu', namespace: 'notes', key: 'developmentNotes', value: 'Fejlesztési jegyzetek' },
+      { lang: 'hu', namespace: 'notes', key: 'notesDesc', value: 'Jegyzetek hozzáadása, szerkesztése és kezelése. Kattints a szerkesztés gombra a meglévő jegyzetek módosításához.' },
+      { lang: 'hu', namespace: 'notes', key: 'addNewNote', value: 'Új jegyzet hozzáadása' },
+      { lang: 'hu', namespace: 'notes', key: 'enterNote', value: 'Írd be a jegyzeted...' },
+      { lang: 'hu', namespace: 'notes', key: 'loadingNotes', value: 'Jegyzetek betöltése...' },
+      { lang: 'hu', namespace: 'notes', key: 'noNotes', value: 'Nem találhatók jegyzetek. Kattints az "Új jegyzet hozzáadása" gombra az első jegyzet létrehozásához.' },
+      { lang: 'hu', namespace: 'notes', key: 'noteCreated', value: 'Jegyzet sikeresen létrehozva!' },
+      { lang: 'hu', namespace: 'notes', key: 'noteUpdated', value: 'Jegyzet sikeresen frissítve!' },
+      { lang: 'hu', namespace: 'notes', key: 'noteDeleted', value: 'Jegyzet sikeresen törölve!' },
+      { lang: 'hu', namespace: 'notes', key: 'noteError', value: 'Hiba a jegyzet mentésekor' },
+      { lang: 'hu', namespace: 'notes', key: 'deleteConfirm', value: 'Biztosan törölni szeretnéd ezt a jegyzetet?' },
+      
+      // Sindhi
+      { lang: 'sd', namespace: 'notes', key: 'title', value: 'نوٽس' },
+      { lang: 'sd', namespace: 'notes', key: 'subtitle', value: 'پنهنجي ڊولپمينٽ نوٽس ۽ implementation جا ٽپس رکو' },
+      { lang: 'sd', namespace: 'notes', key: 'developmentNotes', value: 'ڊولپمينٽ نوٽس' },
+      { lang: 'sd', namespace: 'notes', key: 'notesDesc', value: 'نوٽس شامل ڪريو، ايڊٽ ڪريو ۽ منظم ڪريو. موجوده نوٽس تبديل ڪرڻ لاءِ ايڊٽ تي ڪلڪ ڪريو.' },
+      { lang: 'sd', namespace: 'notes', key: 'addNewNote', value: 'نئون نوٽ شامل ڪريو' },
+      { lang: 'sd', namespace: 'notes', key: 'enterNote', value: 'پنهنجو نوٽ داخل ڪريو...' },
+      { lang: 'sd', namespace: 'notes', key: 'loadingNotes', value: 'نوٽس لوڊ ٿي رهيا آهن...' },
+      { lang: 'sd', namespace: 'notes', key: 'noNotes', value: 'ڪو نوٽ نه مليو. پهريون نوٽ ٺاهڻ لاءِ "نئون نوٽ شامل ڪريو" تي ڪلڪ ڪريو.' },
+      { lang: 'sd', namespace: 'notes', key: 'noteCreated', value: 'نوٽ ڪاميابيءَ سان ٺهيو!' },
+      { lang: 'sd', namespace: 'notes', key: 'noteUpdated', value: 'نوٽ ڪاميابيءَ سان اپڊيٽ ٿيو!' },
+      { lang: 'sd', namespace: 'notes', key: 'noteDeleted', value: 'نوٽ ڪاميابيءَ سان ڊاهيو ويو!' },
+      { lang: 'sd', namespace: 'notes', key: 'noteError', value: 'نوٽ محفوظ ڪرڻ ۾ خرابي' },
+      { lang: 'sd', namespace: 'notes', key: 'deleteConfirm', value: 'ڇا توهان واقعي هن نوٽ کي ڊاهڻ چاهيو ٿا؟' }
     ];
 
     const stmt = db.prepare(`
-      INSERT OR REPLACE INTO translations (language_code, translation_key, translation_value)
-      VALUES (?, ?, ?)
+      INSERT OR REPLACE INTO translations (language_code, namespace, translation_key, translation_value)
+      VALUES (?, ?, ?, ?)
     `);
 
-    translations.forEach(({ lang, key, value }) => {
-      stmt.run(lang, key, value);
+    translations.forEach(({ lang, namespace, key, value }) => {
+      stmt.run(lang, namespace, key, value);
     });
 
     stmt.finalize();
 
-    // Insert initial notes about i18next implementation
-    const notes = [
-      'When setting up i18next, always define fallback languages to ensure users see content even when translations are missing. Use `fallbackLng: ["en"]` as a minimum configuration.',
-      'Structure your translation keys hierarchically using nested objects. For example: `user.profile.name` instead of flat keys like `userProfileName`. This makes maintenance easier.',
-      'Use interpolation for dynamic content: `"Welcome {{username}}"` instead of string concatenation. This ensures proper RTL support and maintains translation context.',
-      'Implement lazy loading for translations to reduce initial bundle size. Load translation files only when needed, especially for large applications with many languages.',
-      'Always use the `Trans` component for complex translations containing HTML or React components. Never use `dangerouslySetInnerHTML` with translated content.',
-      'Set up proper language detection with multiple fallback methods: localStorage, navigator language, and URL parameters. Use `i18next-browser-languagedetector` for this.',
-      'Create a consistent naming convention for translation keys. Use present tense verbs and descriptive names: `button.save`, `message.success.userCreated`.',
-      'For RTL languages (Arabic, Hebrew, Urdu), ensure your CSS supports `dir="rtl"` and test layout carefully. Consider using logical CSS properties like `margin-inline-start`.',
-      'Implement pluralization rules correctly using i18next plural forms. Different languages have different pluralization rules - English has 2 forms, Polish has 4.',
-      'Set up automated translation management with tools like Crowdin or Lokalise. This prevents translation keys from becoming outdated and helps manage translator workflows.'
-    ];
-
-    const noteStmt = db.prepare(`
-      INSERT OR IGNORE INTO notes (content)
-      VALUES (?)
-    `);
-
-    notes.forEach((content) => {
-      noteStmt.run(content);
-    });
-
-    noteStmt.finalize();
     console.log('Database initialized with translations and notes.');
+  });
+  
+  // Insert initial notes about i18next implementation (only if notes table is empty)
+  db.get(`SELECT COUNT(*) as count FROM notes`, [], (err, row) => {
+    if (!err && row.count === 0) {
+      const notes = [
+        'When setting up i18next, always define fallback languages to ensure users see content even when translations are missing. Use `fallbackLng: ["en"]` as a minimum configuration.',
+        'Structure your translation keys hierarchically using nested objects. For example: `user.profile.name` instead of flat keys like `userProfileName`. This makes maintenance easier.',
+        'Use interpolation for dynamic content: `"Welcome {{username}}"` instead of string concatenation. This ensures proper RTL support and maintains translation context.',
+        'Implement lazy loading for translations to reduce initial bundle size. Load translation files only when needed, especially for large applications with many languages.',
+        'Always use the `Trans` component for complex translations containing HTML or React components. Never use `dangerouslySetInnerHTML` with translated content.',
+        'Set up proper language detection with multiple fallback methods: localStorage, navigator language, and URL parameters. Use `i18next-browser-languagedetector` for this.',
+        'Create a consistent naming convention for translation keys. Use present tense verbs and descriptive names: `button.save`, `message.success.userCreated`.',
+        'For RTL languages (Arabic, Hebrew, Urdu), ensure your CSS supports `dir="rtl"` and test layout carefully. Consider using logical CSS properties like `margin-inline-start`.',
+        'Implement pluralization rules correctly using i18next plural forms. Different languages have different pluralization rules - English has 2 forms, Polish has 4.',
+        'Set up automated translation management with tools like Crowdin or Lokalise. This prevents translation keys from becoming outdated and helps manage translator workflows.'
+      ];
+
+      const noteStmt = db.prepare(`
+        INSERT INTO notes (content)
+        VALUES (?)
+      `);
+
+      notes.forEach((content) => {
+        noteStmt.run(content);
+      });
+
+      noteStmt.finalize();
+    }
   });
 }
 
-export function getTranslations(languageCode, callback) {
-  const query = `
-    SELECT translation_key, translation_value 
-    FROM translations 
-    WHERE language_code = ?
-  `;
+export function getTranslations(languageCode, namespace = null, callback) {
+  let query, params;
   
-  db.all(query, [languageCode], (err, rows) => {
+  if (namespace) {
+    query = `
+      SELECT translation_key, translation_value 
+      FROM translations 
+      WHERE language_code = ? AND namespace = ?
+    `;
+    params = [languageCode, namespace];
+  } else {
+    query = `
+      SELECT translation_key, translation_value 
+      FROM translations 
+      WHERE language_code = ?
+    `;
+    params = [languageCode];
+  }
+  
+  db.all(query, params, (err, rows) => {
     if (err) {
       callback(err, null);
       return;
@@ -142,6 +241,32 @@ export function getTranslations(languageCode, callback) {
     });
     
     callback(null, translations);
+  });
+}
+
+export function getTranslationsByNamespace(languageCode, callback) {
+  const query = `
+    SELECT namespace, translation_key, translation_value 
+    FROM translations 
+    WHERE language_code = ?
+    ORDER BY namespace, translation_key
+  `;
+  
+  db.all(query, [languageCode], (err, rows) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    const translationsByNamespace = {};
+    rows.forEach(row => {
+      if (!translationsByNamespace[row.namespace]) {
+        translationsByNamespace[row.namespace] = {};
+      }
+      translationsByNamespace[row.namespace][row.translation_key] = row.translation_value;
+    });
+    
+    callback(null, translationsByNamespace);
   });
 }
 
@@ -159,14 +284,14 @@ export function getAllLanguages(callback) {
   });
 }
 
-export function updateTranslation(languageCode, translationKey, translationValue, callback) {
+export function updateTranslation(languageCode, namespace, translationKey, translationValue, callback) {
   const query = `
     UPDATE translations 
     SET translation_value = ? 
-    WHERE language_code = ? AND translation_key = ?
+    WHERE language_code = ? AND namespace = ? AND translation_key = ?
   `;
   
-  db.run(query, [translationValue, languageCode, translationKey], function(err) {
+  db.run(query, [translationValue, languageCode, namespace, translationKey], function(err) {
     if (err) {
       callback(err, null);
       return;

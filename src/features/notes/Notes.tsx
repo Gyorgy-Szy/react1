@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Header from '../components/Header'
-import NoteInput from '../components/NoteInput'
-import LoadingSpinner from '../components/LoadingSpinner'
+import Header from '../../components/Header'
+import NoteInput from './components/NoteInput'
+import LoadingSpinner from '../../components/LoadingSpinner'
 
 interface Note {
   id: number
@@ -12,7 +12,7 @@ interface Note {
 }
 
 function Notes() {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['notes', 'general'])
   const [notes, setNotes] = useState<Note[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
@@ -36,7 +36,7 @@ function Notes() {
       }
     } catch (error) {
       console.error('Error loading notes:', error)
-      setSaveMessage('Error loading notes')
+      setSaveMessage(t('notes:loadError'))
       setSaveType('error')
     } finally {
       setIsLoading(false)
@@ -68,7 +68,7 @@ function Notes() {
       }
 
       if (response.ok) {
-        setSaveMessage(noteId ? 'Note updated successfully!' : 'Note created successfully!')
+        setSaveMessage(noteId ? t('notes:noteUpdated') : t('notes:noteCreated'))
         setSaveType('success')
         setTimeout(() => setSaveMessage(''), 3000)
         
@@ -80,13 +80,13 @@ function Notes() {
       }
     } catch (error) {
       console.error('Error saving note:', error)
-      setSaveMessage('Error saving note')
+      setSaveMessage(t('notes:noteError'))
       setSaveType('error')
     }
   }
 
   const deleteNote = async (noteId: number) => {
-    if (!window.confirm('Are you sure you want to delete this note?')) {
+    if (!window.confirm(t('notes:deleteConfirm'))) {
       return
     }
 
@@ -96,7 +96,7 @@ function Notes() {
       })
 
       if (response.ok) {
-        setSaveMessage('Note deleted successfully!')
+        setSaveMessage(t('notes:noteDeleted'))
         setSaveType('success')
         setTimeout(() => setSaveMessage(''), 3000)
         
@@ -107,7 +107,7 @@ function Notes() {
       }
     } catch (error) {
       console.error('Error deleting note:', error)
-      setSaveMessage('Error deleting note')
+      setSaveMessage(t('notes:deleteError'))
       setSaveType('error')
     }
   }
@@ -117,19 +117,19 @@ function Notes() {
       <Header />
       <div className="page-content">
         <div className="page-header">
-          <h1 className="text-large">Notes</h1>
+          <h1 className="text-large">{t('notes:title')}</h1>
           <p className="text-muted">
-            Keep track of your development notes and implementation tips
+            {t('notes:subtitle')}
           </p>
         </div>
 
         <div className="card">
           <div className="mb-3">
             <h2 className="text-medium flex items-center gap-small">
-              📝 Development Notes
+              📝 {t('notes:developmentNotes')}
             </h2>
             <p className="text-muted text-small">
-              Add, edit, and manage your notes. Click edit to modify existing notes.
+              {t('notes:notesDesc')}
             </p>
           </div>
           
@@ -139,7 +139,7 @@ function Notes() {
               className="btn-add"
               disabled={showNewNote}
             >
-              ➕ Add New Note
+              ➕ {t('notes:addNewNote')}
             </button>
             
             {saveMessage && (
@@ -154,7 +154,7 @@ function Notes() {
             )}
 
             {isLoading ? (
-              <LoadingSpinner message="Loading notes..." />
+              <LoadingSpinner message={t('notes:loadingNotes')} />
             ) : (
               <div>
                 {showNewNote && (
@@ -175,7 +175,7 @@ function Notes() {
                 
                 {notes.length === 0 && !showNewNote && (
                   <div className="empty-state">
-                    No notes found. Click "Add New Note" to create your first note.
+                    {t('notes:noNotes')}
                   </div>
                 )}
               </div>

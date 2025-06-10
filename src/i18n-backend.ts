@@ -4,21 +4,21 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 const API_BASE_URL = '/api';
 
-// Custom backend to load translations from our API
+// Custom backend to load translations from our API with namespace support
 const customBackend = {
   type: 'backend' as const,
   init: function() {},
-  read: async function(language: string, _namespace: string, callback: (err: unknown, data?: unknown) => void) {
+  read: async function(language: string, namespace: string, callback: (err: unknown, data?: unknown) => void) {
     try {
       // Normalize language code - remove country code if present
       const normalizedLang = language.split('-')[0];
       
-      const response = await fetch(`${API_BASE_URL}/translations/${normalizedLang}`);
+      const response = await fetch(`${API_BASE_URL}/translations/${normalizedLang}/${namespace}`);
       
       if (!response.ok) {
-        // If language not found, try fallback to English
+        // If namespace not found, try fallback to English
         if (response.status === 404) {
-          const fallbackResponse = await fetch(`${API_BASE_URL}/translations/en`);
+          const fallbackResponse = await fetch(`${API_BASE_URL}/translations/en/${namespace}`);
           if (fallbackResponse.ok) {
             const fallbackData = await fallbackResponse.json();
             callback(null, fallbackData.translations);
@@ -31,7 +31,7 @@ const customBackend = {
       const data = await response.json();
       callback(null, data.translations);
     } catch (error) {
-      console.error('Error loading translations:', error);
+      console.error(`Error loading translations for ${namespace}:`, error);
       callback(error, null);
     }
   },
@@ -49,6 +49,13 @@ i18n
     // Define supported languages
     supportedLngs: ['en', 'hu', 'sd'],
     
+    // Define default namespace and lazy load others
+    defaultNS: 'general',
+    ns: ['general'],
+    
+    // Enable lazy loading for other namespaces
+    partialBundledLanguages: true,
+    
     // Clean up language codes
     cleanCode: true,
     
@@ -64,7 +71,7 @@ i18n
     },
     
     backend: {
-      loadPath: `${API_BASE_URL}/translations/{{lng}}`
+      loadPath: `${API_BASE_URL}/translations/{{lng}}/{{ns}}`
     }
   });
 

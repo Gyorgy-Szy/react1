@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Note {
   id: number
@@ -15,6 +16,7 @@ interface NoteInputProps {
 }
 
 export default function NoteInput({ note, onSave, onDelete, isNew = false }: NoteInputProps) {
+  const { t } = useTranslation(['general', 'notes'])
   const [isEditing, setIsEditing] = useState(isNew)
   const [isLoadingEdit, setIsLoadingEdit] = useState(false)
   const [editValue, setEditValue] = useState(note?.content || '')
@@ -76,7 +78,7 @@ export default function NoteInput({ note, onSave, onDelete, isNew = false }: Not
               <button
                 onClick={handleEdit}
                 className="btn"
-                title="Edit"
+                title={t('general:edit')}
               >
                 ✏️
               </button>
@@ -84,7 +86,7 @@ export default function NoteInput({ note, onSave, onDelete, isNew = false }: Not
                 <button
                   onClick={handleDelete}
                   className="btn"
-                  title="Delete"
+                  title={t('general:delete')}
                 >
                   🗑️
                 </button>
@@ -98,7 +100,7 @@ export default function NoteInput({ note, onSave, onDelete, isNew = false }: Not
             <textarea
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
-              placeholder="Enter your note..."
+              placeholder={t('notes:enterNote')}
               autoFocus
               className="textarea textarea-full"
               rows={4}
@@ -109,13 +111,13 @@ export default function NoteInput({ note, onSave, onDelete, isNew = false }: Not
                 className="btn-save"
                 disabled={editValue.trim() === ''}
               >
-                ✅ Save
+                ✅ {t('general:save')}
               </button>
               <button
                 onClick={handleCancel}
                 className="btn-cancel"
               >
-                ❌ Cancel
+                ❌ {t('general:cancel')}
               </button>
             </div>
           </div>

@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next'
 import './index.css'
 import './i18n-backend'
 import App from './App.tsx'
-import Config from './pages/Config.tsx'
-import Notes from './pages/Notes.tsx'
+import { ConfigPage } from './features/config'
+import { NotesPage } from './features/notes'
 import LoadingSpinner from './components/LoadingSpinner'
 import { setDocumentDirection } from './utils/rtl'
 
@@ -32,8 +32,8 @@ function AppWrapper() {
   return (
     <Routes>
       <Route path="/" element={<App />} />
-      <Route path="/config" element={<Config />} />
-      <Route path="/notes" element={<Notes />} />
+      <Route path="/config" element={<ConfigPage />} />
+      <Route path="/notes" element={<NotesPage />} />
     </Routes>
   )
 }
