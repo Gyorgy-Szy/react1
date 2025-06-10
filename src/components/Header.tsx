@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getAvailableLanguages } from '../i18n-backend'
 import LoadingSpinner from './LoadingSpinner'
+import { isRTLLanguage } from '../utils/rtl'
 
 function Header() {
   const navigate = useNavigate()
@@ -58,9 +59,10 @@ function Header() {
               value={i18n.language} 
               onChange={(e) => changeLanguage(e.target.value)}
               className="select"
+              dir={isRTLLanguage(i18n.language) ? 'rtl' : 'ltr'}
             >
               {availableLanguages.map((lang) => (
-                <option key={lang.code} value={lang.code}>
+                <option key={lang.code} value={lang.code} dir={isRTLLanguage(lang.code) ? 'rtl' : 'ltr'}>
                   {lang.name}
                 </option>
               ))}

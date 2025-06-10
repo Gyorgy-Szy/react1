@@ -15,6 +15,69 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* Only reverse horizontal flex containers, not vertical ones */
+[dir="rtl"] .header-content {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .header-nav {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .header-controls {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .translation-item {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .translation-actions {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .alert-content {
+  flex-direction: row-reverse;
+}
+
+/* Specific RTL handling for horizontal layouts only */
+[dir="rtl"] .flex:not(.flex-column) {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .justify-between:not(.flex-column) {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] input, [dir="rtl"] select, [dir="rtl"] textarea {
+  text-align: right;
+}
+
+[dir="rtl"] .text-center {
+  text-align: center;
+}
+
+/* RTL-specific gap adjustments */
+[dir="rtl"] .gap-small > * + * {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+[dir="rtl"] .gap-medium > * + * {
+  margin-right: 1rem;
+  margin-left: 0;
+}
+
+[dir="rtl"] .gap-large > * + * {
+  margin-right: 2rem;
+  margin-left: 0;
+}
+
 /* Layout utilities */
 .container {
   max-width: 1200px;
@@ -229,6 +292,10 @@ body {
 }
 
 /* Translation input styles */
+.translation-card {
+  position: relative;
+}
+
 .translation-item {
   display: flex;
   align-items: center;
@@ -258,6 +325,29 @@ body {
 .translation-actions {
   display: flex;
   gap: 0.5rem;
+}
+
+.translation-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.translation-mini-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 .reference-value {

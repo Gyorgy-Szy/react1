@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { isRTLLanguage } from '../utils/rtl'
 
 interface TranslationInputProps {
   translationKey: string
   value: string
   selectedLanguage: string
   onSave: (key: string, value: string) => void
-  className?: string
 }
 
-export default function TranslationInput({ translationKey, value, selectedLanguage, onSave, className }: TranslationInputProps) {
+export default function TranslationInput({ translationKey, value, selectedLanguage, onSave }: TranslationInputProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [isLoadingEdit, setIsLoadingEdit] = useState(false)
   const [editValue, setEditValue] = useState(value)
   const [originalValue, setOriginalValue] = useState('')
   const [englishValue, setEnglishValue] = useState('')
@@ -25,6 +26,7 @@ export default function TranslationInput({ translationKey, value, selectedLangua
   }
 
   const handleEdit = async () => {
+    setIsLoadingEdit(true)
     setEditValue(value)
     setOriginalValue(value)
     
@@ -41,15 +43,24 @@ export default function TranslationInput({ translationKey, value, selectedLangua
       }
     }
     
+    // Add 0.5 second delay to show loading indicator
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    setIsLoadingEdit(false)
     setIsEditing(true)
   }
 
   return (
-    <div className="card-small">
+    <div className="card-small translation-card">
+      {isLoadingEdit && (
+        <div className="translation-loading-overlay">
+          <div className="translation-mini-spinner"></div>
+        </div>
+      )}
       <div className="mb-1">
         <div className="translation-item">
           <span className="translation-label">{translationKey}</span>
-          {!isEditing && (
+          {!isEditing && !isLoadingEdit && (
             <button
               onClick={handleEdit}
               className="btn"
@@ -65,13 +76,13 @@ export default function TranslationInput({ translationKey, value, selectedLangua
             {originalValue && (
               <div className="reference-value">
                 <span className="reference-label">Original:</span>
-                <span className="reference-text">{originalValue}</span>
+                <span className="reference-text" dir={isRTLLanguage(selectedLanguage) ? 'rtl' : 'ltr'}>{originalValue}</span>
               </div>
             )}
             {selectedLanguage !== 'en' && englishValue && (
               <div className="reference-value">
                 <span className="reference-label">English:</span>
-                <span className="reference-text">{englishValue}</span>
+                <span className="reference-text" dir="ltr">{englishValue}</span>
               </div>
             )}
             <input
@@ -81,6 +92,7 @@ export default function TranslationInput({ translationKey, value, selectedLangua
               placeholder="Enter translation"
               autoFocus
               className="input input-full"
+              dir={isRTLLanguage(selectedLanguage) ? 'rtl' : 'ltr'}
             />
             <div className="translation-actions">
               <button
@@ -98,7 +110,7 @@ export default function TranslationInput({ translationKey, value, selectedLangua
             </div>
           </div>
         ) : (
-          <div className="translation-value">
+          <div className="translation-value" dir={isRTLLanguage(selectedLanguage) ? 'rtl' : 'ltr'}>
             {value || <span className="translation-empty">No translation</span>}
           </div>
         )}

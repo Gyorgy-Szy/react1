@@ -47,7 +47,7 @@ i18n
     debug: false,
     
     // Define supported languages
-    supportedLngs: ['en', 'hu'],
+    supportedLngs: ['en', 'hu', 'sd'],
     
     // Clean up language codes
     cleanCode: true,
@@ -80,7 +80,8 @@ export async function getAvailableLanguages() {
     // Map language codes to display names
     const languageMap: { [key: string]: string } = {
       'en': 'English',
-      'hu': 'Magyar'
+      'hu': 'Magyar',
+      'sd': 'سنڌي (Sindhi)'
     };
     
     return data.languages.map((code: string) => ({
@@ -92,7 +93,8 @@ export async function getAvailableLanguages() {
     // Return default languages as fallback
     return [
       { code: 'en', name: 'English' },
-      { code: 'hu', name: 'Magyar' }
+      { code: 'hu', name: 'Magyar' },
+      { code: 'sd', name: 'سنڌي (Sindhi)' }
     ];
   }
 }

@@ -57,7 +57,21 @@ function initializeDatabase() {
       { lang: 'hu', key: 'light', value: 'Világos' },
       { lang: 'hu', key: 'dark', value: 'Sötét' },
       { lang: 'hu', key: 'notifications', value: 'Értesítések' },
-      { lang: 'hu', key: 'enableNotifications', value: 'Értesítések engedélyezése' }
+      { lang: 'hu', key: 'enableNotifications', value: 'Értesítések engedélyezése' },
+      
+      // Sindhi translations (in Arabic script)
+      { lang: 'sd', key: 'title', value: 'Vite + React' },
+      { lang: 'sd', key: 'count', value: 'شمار آهي {{count}}' },
+      { lang: 'sd', key: 'edit', value: '<1>src/App.tsx</1> کي تبديل ڪريو ۽ HMR ٽيسٽ ڪرڻ لاءِ محفوظ ڪريو' },
+      { lang: 'sd', key: 'clickLogos', value: 'وڌيڪ سکڻ لاءِ Vite ۽ React جي لوگو تي ڪلڪ ڪريو' },
+      { lang: 'sd', key: 'language', value: 'ٻولي' },
+      { lang: 'sd', key: 'configuration', value: 'ترتيبات' },
+      { lang: 'sd', key: 'general', value: 'عام' },
+      { lang: 'sd', key: 'theme', value: 'موضوع' },
+      { lang: 'sd', key: 'light', value: 'روشن' },
+      { lang: 'sd', key: 'dark', value: 'اونداهو' },
+      { lang: 'sd', key: 'notifications', value: 'اطلاعات' },
+      { lang: 'sd', key: 'enableNotifications', value: 'اطلاعات فعال ڪريو' }
     ];
 
     const stmt = db.prepare(`
