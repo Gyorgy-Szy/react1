@@ -29,6 +29,16 @@ function initializeDatabase() {
       )
     `);
 
+    // Create notes table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS notes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Insert initial translations
     const translations = [
       // English translations
@@ -84,7 +94,32 @@ function initializeDatabase() {
     });
 
     stmt.finalize();
-    console.log('Database initialized with translations.');
+
+    // Insert initial notes about i18next implementation
+    const notes = [
+      'When setting up i18next, always define fallback languages to ensure users see content even when translations are missing. Use `fallbackLng: ["en"]` as a minimum configuration.',
+      'Structure your translation keys hierarchically using nested objects. For example: `user.profile.name` instead of flat keys like `userProfileName`. This makes maintenance easier.',
+      'Use interpolation for dynamic content: `"Welcome {{username}}"` instead of string concatenation. This ensures proper RTL support and maintains translation context.',
+      'Implement lazy loading for translations to reduce initial bundle size. Load translation files only when needed, especially for large applications with many languages.',
+      'Always use the `Trans` component for complex translations containing HTML or React components. Never use `dangerouslySetInnerHTML` with translated content.',
+      'Set up proper language detection with multiple fallback methods: localStorage, navigator language, and URL parameters. Use `i18next-browser-languagedetector` for this.',
+      'Create a consistent naming convention for translation keys. Use present tense verbs and descriptive names: `button.save`, `message.success.userCreated`.',
+      'For RTL languages (Arabic, Hebrew, Urdu), ensure your CSS supports `dir="rtl"` and test layout carefully. Consider using logical CSS properties like `margin-inline-start`.',
+      'Implement pluralization rules correctly using i18next plural forms. Different languages have different pluralization rules - English has 2 forms, Polish has 4.',
+      'Set up automated translation management with tools like Crowdin or Lokalise. This prevents translation keys from becoming outdated and helps manage translator workflows.'
+    ];
+
+    const noteStmt = db.prepare(`
+      INSERT OR IGNORE INTO notes (content)
+      VALUES (?)
+    `);
+
+    notes.forEach((content) => {
+      noteStmt.run(content);
+    });
+
+    noteStmt.finalize();
+    console.log('Database initialized with translations and notes.');
   });
 }
 
@@ -139,6 +174,76 @@ export function updateTranslation(languageCode, translationKey, translationValue
     
     if (this.changes === 0) {
       callback(new Error('Translation not found'), null);
+      return;
+    }
+    
+    callback(null, { success: true, changes: this.changes });
+  });
+}
+
+// Notes CRUD operations
+export function getAllNotes(callback) {
+  const query = `SELECT * FROM notes ORDER BY updated_at DESC`;
+  
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    callback(null, rows);
+  });
+}
+
+export function createNote(content, callback) {
+  const query = `
+    INSERT INTO notes (content)
+    VALUES (?)
+  `;
+  
+  db.run(query, [content], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    callback(null, { id: this.lastID, content });
+  });
+}
+
+export function updateNote(noteId, content, callback) {
+  const query = `
+    UPDATE notes 
+    SET content = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+  
+  db.run(query, [content, noteId], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    if (this.changes === 0) {
+      callback(new Error('Note not found'), null);
+      return;
+    }
+    
+    callback(null, { success: true, changes: this.changes });
+  });
+}
+
+export function deleteNote(noteId, callback) {
+  const query = `DELETE FROM notes WHERE id = ?`;
+  
+  db.run(query, [noteId], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    if (this.changes === 0) {
+      callback(new Error('Note not found'), null);
       return;
     }
     

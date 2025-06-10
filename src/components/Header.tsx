@@ -70,6 +70,14 @@ function Header() {
           </div>
           
           <button
+            onClick={() => navigate('/notes')}
+            title="Notes"
+            className="btn"
+          >
+            📝
+          </button>
+          
+          <button
             onClick={() => navigate('/config')}
             title={t('configuration')}
             className="btn"

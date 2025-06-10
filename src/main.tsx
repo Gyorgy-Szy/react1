@@ -6,6 +6,7 @@ import './index.css'
 import './i18n-backend'
 import App from './App.tsx'
 import Config from './pages/Config.tsx'
+import Notes from './pages/Notes.tsx'
 import LoadingSpinner from './components/LoadingSpinner'
 import { setDocumentDirection } from './utils/rtl'
 
@@ -32,6 +33,7 @@ function AppWrapper() {
     <Routes>
       <Route path="/" element={<App />} />
       <Route path="/config" element={<Config />} />
+      <Route path="/notes" element={<Notes />} />
     </Routes>
   )
 }

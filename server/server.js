@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { getTranslations, getAllLanguages, updateTranslation } from './database.js';
+import { getTranslations, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote } from './database.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -72,6 +72,96 @@ app.put('/api/translations/:language/:key', (req, res) => {
       language,
       key,
       value,
+      changes: result.changes
+    });
+  });
+});
+
+// Notes endpoints
+app.get('/api/notes', (req, res) => {
+  getAllNotes((err, notes) => {
+    if (err) {
+      console.error('Error fetching notes:', err);
+      res.status(500).json({ error: 'Failed to fetch notes' });
+      return;
+    }
+    res.json({ notes });
+  });
+});
+
+app.post('/api/notes', (req, res) => {
+  const { content } = req.body;
+  
+  if (!content || content.trim() === '') {
+    res.status(400).json({ error: 'Note content is required' });
+    return;
+  }
+  
+  createNote(content.trim(), (err, result) => {
+    if (err) {
+      console.error('Error creating note:', err);
+      res.status(500).json({ error: 'Failed to create note' });
+      return;
+    }
+    
+    res.status(201).json({
+      success: true,
+      note: {
+        id: result.id,
+        content: result.content,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    });
+  });
+});
+
+app.put('/api/notes/:id', (req, res) => {
+  const { id } = req.params;
+  const { content } = req.body;
+  
+  if (!content || content.trim() === '') {
+    res.status(400).json({ error: 'Note content is required' });
+    return;
+  }
+  
+  updateNote(parseInt(id), content.trim(), (err, result) => {
+    if (err) {
+      console.error('Error updating note:', err);
+      if (err.message === 'Note not found') {
+        res.status(404).json({ error: 'Note not found' });
+      } else {
+        res.status(500).json({ error: 'Failed to update note' });
+      }
+      return;
+    }
+    
+    res.json({
+      success: true,
+      noteId: parseInt(id),
+      content: content.trim(),
+      changes: result.changes
+    });
+  });
+});
+
+app.delete('/api/notes/:id', (req, res) => {
+  const { id } = req.params;
+  
+  deleteNote(parseInt(id), (err, result) => {
+    if (err) {
+      console.error('Error deleting note:', err);
+      if (err.message === 'Note not found') {
+        res.status(404).json({ error: 'Note not found' });
+      } else {
+        res.status(500).json({ error: 'Failed to delete note' });
+      }
+      return;
+    }
+    
+    res.json({
+      success: true,
+      noteId: parseInt(id),
       changes: result.changes
     });
   });
