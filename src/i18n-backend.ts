@@ -6,14 +6,17 @@ const API_BASE_URL = '/api';
 
 // Custom backend to load translations from our API
 const customBackend = {
-  type: 'backend',
+  type: 'backend' as const,
   init: function() {},
-  read: async function(language: string, namespace: string, callback: (err: any, data?: any) => void) {
+  read: async function(language: string, _namespace: string, callback: (err: unknown, data?: unknown) => void) {
     try {
-      const response = await fetch(`${API_BASE_URL}/translations/${language}`);
+      // Normalize language code - remove country code if present
+      const normalizedLang = language.split('-')[0];
+      
+      const response = await fetch(`${API_BASE_URL}/translations/${normalizedLang}`);
       
       if (!response.ok) {
-        // If language not found, try fallback
+        // If language not found, try fallback to English
         if (response.status === 404) {
           const fallbackResponse = await fetch(`${API_BASE_URL}/translations/en`);
           if (fallbackResponse.ok) {
@@ -43,13 +46,21 @@ i18n
     fallbackLng: 'en',
     debug: false,
     
+    // Define supported languages
+    supportedLngs: ['en', 'hu'],
+    
+    // Clean up language codes
+    cleanCode: true,
+    
     interpolation: {
       escapeValue: false
     },
     
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage']
+      caches: ['localStorage'],
+      // Convert language codes like 'hu-HU' to 'hu'
+      convertDetectedLanguage: (lng: string) => lng.split('-')[0]
     },
     
     backend: {
