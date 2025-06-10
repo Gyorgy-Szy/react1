@@ -181,6 +181,9 @@ function initializeDatabase() {
       { lang: 'en', namespace: 'testbay', key: 'languageValue', value: 'English (en)' },
       { lang: 'en', namespace: 'testbay', key: 'loadedNamespaces', value: 'Loaded Namespaces' },
       { lang: 'en', namespace: 'testbay', key: 'browserDirection', value: 'Browser Direction' },
+      { lang: 'en', namespace: 'testbay', key: 'htmlContentLabel', value: 'Example HTML content' },
+      { lang: 'en', namespace: 'testbay', key: 'htmlContent', value: 'example html with <b>bold</b>' },
+      { lang: 'en', namespace: 'testbay', key: 'rtlOnlyLabel', value: 'This text is always rtl, no translation' },
       
       // Hungarian
       { lang: 'hu', namespace: 'testbay', key: 'title', value: 'Tesztkörnyezet' },
@@ -196,6 +199,9 @@ function initializeDatabase() {
       { lang: 'hu', namespace: 'testbay', key: 'languageValue', value: 'Magyar (hu)' },
       { lang: 'hu', namespace: 'testbay', key: 'loadedNamespaces', value: 'Betöltött névterek' },
       { lang: 'hu', namespace: 'testbay', key: 'browserDirection', value: 'Böngésző irány' },
+      { lang: 'hu', namespace: 'testbay', key: 'htmlContentLabel', value: 'Példa HTML tartalom' },
+      { lang: 'hu', namespace: 'testbay', key: 'htmlContent', value: 'példa html <b>félkövér</b> szöveggel' },
+      { lang: 'hu', namespace: 'testbay', key: 'rtlOnlyLabel', value: 'Ez a szöveg mindig jobbról balra, nincs fordítás' },
       
       // Sindhi
       { lang: 'sd', namespace: 'testbay', key: 'title', value: 'ٽيسٽ بي' },
@@ -210,7 +216,10 @@ function initializeDatabase() {
       { lang: 'sd', namespace: 'testbay', key: 'currentLanguage', value: 'موجوده ٻولي' },
       { lang: 'sd', namespace: 'testbay', key: 'languageValue', value: 'سنڌي (sd)' },
       { lang: 'sd', namespace: 'testbay', key: 'loadedNamespaces', value: 'لوڊ ٿيل نيم اسپيس' },
-      { lang: 'sd', namespace: 'testbay', key: 'browserDirection', value: 'برائوزر جو رخ' }
+      { lang: 'sd', namespace: 'testbay', key: 'browserDirection', value: 'برائوزر جو رخ' },
+      { lang: 'sd', namespace: 'testbay', key: 'htmlContentLabel', value: 'مثال HTML مواد' },
+      { lang: 'sd', namespace: 'testbay', key: 'htmlContent', value: 'مثال html <b>ڳرو</b> متن سان' },
+      { lang: 'sd', namespace: 'testbay', key: 'rtlOnlyLabel', value: 'هي متن هميشه ساڄي کان ڪابي، ڪو ترجمو ناهي' }
     ];
 
     const stmt = db.prepare(`

@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next'
+import { useTranslation, Trans } from 'react-i18next'
 import Header from '../../components/Header'
 
 function Testbay() {
@@ -37,7 +37,7 @@ function Testbay() {
               <div className="test-case-label">{t('testbay:ltrOnlyLabel')}:</div>
               <div className="test-case-content" dir="ltr">One sentence in LTR</div>
             </div>
-            
+
             <div className="test-case mb-2">
               <div className="test-case-label">{t('testbay:rtlOnlyLabel')}:</div>
               <div className="test-case-content" dir="rtl">جملة واحدة باللغة العربية</div>
@@ -49,9 +49,29 @@ function Testbay() {
             </div>
 
             <div className="test-case mb-2">
-              <div className="test-case-label">{t('testbay:htmlContentLabel')}:</div>
+              <div className="test-case-label">{t('testbay:htmlContentLabel')} (dangerouslySetInnerHTML):</div>
               <div className="test-case-content" dangerouslySetInnerHTML={{ __html: t('testbay:htmlContent') }} />
+              <div className="test-case-label">(in db):</div>
+              <div className="test-case-content">{ t('testbay:htmlContent') } </div>
             </div>
+
+            <div className="test-case mb-2">
+              <div className="test-case-label">{t('testbay:htmlContentLabel')} (Trans component from homepage, here with bold):</div>
+              <div className="test-case-content">
+                <Trans i18nKey="editCode">
+                  Edit <b>src/App.tsx</b> and save to test HMR
+                </Trans>
+              </div>
+              <div className="test-case-label">(in db):</div>
+              <div className="test-case-content">{ t('general:editCode') } </div>
+              <div className="test-case-label">(in src):</div>
+              <div className="test-case-content">
+                &lt;Trans i18nKey="editCode"&gt;<br/>
+                &nbsp;&nbsp;Edit &lt;b&gt;src/App.tsx&lt;/b&gt; and save to test HMR<br/>
+                &lt;/Trans&gt;
+              </div>
+            </div>
+
           </div>
         </div>
 
