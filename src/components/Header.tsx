@@ -3,16 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getAvailableLanguages } from '../i18n-backend'
 import LoadingSpinner from './LoadingSpinner'
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useTheme } from './theme-provider'
-import { Home, Settings, Sun, Moon, Monitor } from 'lucide-react'
 
 function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const { t, i18n } = useTranslation()
-  const { theme, setTheme } = useTheme()
   const [availableLanguages, setAvailableLanguages] = useState<Array<{code: string, name: string}>>([])
   const [isChangingLanguage, setIsChangingLanguage] = useState(false)
 
@@ -41,74 +36,44 @@ function Header() {
     return <LoadingSpinner message="Changing language..." />
   }
 
-  const getThemeIcon = () => {
-    switch (theme) {
-      case 'light':
-        return <Sun className="h-4 w-4" />
-      case 'dark':
-        return <Moon className="h-4 w-4" />
-      default:
-        return <Monitor className="h-4 w-4" />
-    }
-  }
-
-  const cycleTheme = () => {
-    const themes = ['light', 'dark', 'system'] as const
-    const currentIndex = themes.indexOf(theme)
-    const nextIndex = (currentIndex + 1) % themes.length
-    setTheme(themes[nextIndex])
-  }
-
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-between px-4">
-        <div className="flex items-center gap-2">
+    <header className="header">
+      <div className="header-content">
+        <div className="header-nav">
           {!isHomePage && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => navigate('/')}
               title="Home"
+              className="btn"
             >
-              <Home className="h-4 w-4" />
-            </Button>
+              🏠
+            </button>
           )}
         </div>
         
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{t('language')}:</span>
-            <Select value={i18n.language} onValueChange={changeLanguage}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {availableLanguages.map((lang) => (
-                  <SelectItem key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="header-nav">
+          <div className="header-controls">
+            <span className="text-small text-muted">{t('language')}:</span>
+            <select 
+              value={i18n.language} 
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="select"
+            >
+              {availableLanguages.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
           </div>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={cycleTheme}
-            title={`Current theme: ${theme}`}
-          >
-            {getThemeIcon()}
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => navigate('/config')}
             title={t('configuration')}
+            className="btn"
           >
-            <Settings className="h-4 w-4" />
-          </Button>
+            ⚙️
+          </button>
         </div>
       </div>
     </header>

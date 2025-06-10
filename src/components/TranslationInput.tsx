@@ -1,19 +1,18 @@
-import { useState } from 'react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Check, X, Edit2 } from "lucide-react"
+import { useState, useEffect } from 'react'
 
 interface TranslationInputProps {
   translationKey: string
   value: string
+  selectedLanguage: string
   onSave: (key: string, value: string) => void
   className?: string
 }
 
-export default function TranslationInput({ translationKey, value, onSave, className }: TranslationInputProps) {
+export default function TranslationInput({ translationKey, value, selectedLanguage, onSave, className }: TranslationInputProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(value)
+  const [originalValue, setOriginalValue] = useState('')
+  const [englishValue, setEnglishValue] = useState('')
 
   const handleSave = () => {
     onSave(translationKey, editValue)
@@ -25,64 +24,85 @@ export default function TranslationInput({ translationKey, value, onSave, classN
     setIsEditing(false)
   }
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     setEditValue(value)
+    setOriginalValue(value)
+    
+    // Fetch English translation if current language is not English
+    if (selectedLanguage !== 'en') {
+      try {
+        const response = await fetch(`/api/translations/en`)
+        if (response.ok) {
+          const data = await response.json()
+          setEnglishValue(data.translations[translationKey] || '')
+        }
+      } catch (error) {
+        console.error('Error fetching English translation:', error)
+      }
+    }
+    
     setIsEditing(true)
   }
 
   return (
-    <Card className={className}>
-      <CardContent className="p-4">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">{translationKey}</span>
-            {!isEditing && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleEdit}
-                className="h-8 w-8 p-0"
-              >
-                <Edit2 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          
-          {isEditing ? (
-            <div className="space-y-2">
-              <Input
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                placeholder="Enter translation"
-                autoFocus
-              />
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={handleSave}
-                  className="h-8"
-                >
-                  <Check className="h-4 w-4 mr-1" />
-                  Save
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCancel}
-                  className="h-8"
-                >
-                  <X className="h-4 w-4 mr-1" />
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-sm bg-muted p-2 rounded border">
-              {value || <span className="text-muted-foreground italic">No translation</span>}
-            </div>
+    <div className="card-small">
+      <div className="mb-1">
+        <div className="translation-item">
+          <span className="translation-label">{translationKey}</span>
+          {!isEditing && (
+            <button
+              onClick={handleEdit}
+              className="btn"
+              title="Edit"
+            >
+              ✏️
+            </button>
           )}
         </div>
-      </CardContent>
-    </Card>
+        
+        {isEditing ? (
+          <div className="mt-1">
+            {originalValue && (
+              <div className="reference-value">
+                <span className="reference-label">Original:</span>
+                <span className="reference-text">{originalValue}</span>
+              </div>
+            )}
+            {selectedLanguage !== 'en' && englishValue && (
+              <div className="reference-value">
+                <span className="reference-label">English:</span>
+                <span className="reference-text">{englishValue}</span>
+              </div>
+            )}
+            <input
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              placeholder="Enter translation"
+              autoFocus
+              className="input input-full"
+            />
+            <div className="translation-actions">
+              <button
+                onClick={handleSave}
+                className="btn-save"
+              >
+                ✅ Save
+              </button>
+              <button
+                onClick={handleCancel}
+                className="btn-cancel"
+              >
+                ❌ Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="translation-value">
+            {value || <span className="translation-empty">No translation</span>}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

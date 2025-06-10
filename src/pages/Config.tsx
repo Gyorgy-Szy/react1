@@ -4,10 +4,6 @@ import { getAvailableLanguages } from '../i18n-backend'
 import Header from '../components/Header'
 import TranslationInput from '../components/TranslationInput'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle, AlertCircle, Languages } from 'lucide-react'
 
 interface Translation {
   key: string
@@ -89,78 +85,75 @@ function Config() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="page">
       <Header />
-      <div className="container mx-auto py-6 px-4">
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('configuration')}</h1>
-            <p className="text-muted-foreground">
-              Manage your application settings and translations
+      <div className="page-content">
+        <div className="page-header">
+          <h1 className="text-large">{t('configuration')}</h1>
+          <p className="text-muted">
+            Manage your application settings and translations
+          </p>
+        </div>
+
+        <div className="card">
+          <div className="mb-3">
+            <h2 className="text-medium flex items-center gap-small">
+              🌐 Translation Editor
+            </h2>
+            <p className="text-muted text-small">
+              Edit translations for different languages. Changes are saved automatically.
             </p>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Languages className="h-5 w-5" />
-                Translation Editor
-              </CardTitle>
-              <CardDescription>
-                Edit translations for different languages. Changes are saved automatically.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Select Language:</span>
-                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Choose language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableLanguages.map(lang => (
-                      <SelectItem key={lang.code} value={lang.code}>
-                        {lang.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {saveMessage && (
-                <Alert className={saveType === 'error' ? 'border-destructive' : 'border-green-200'}>
-                  {saveType === 'success' ? (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 text-destructive" />
-                  )}
-                  <AlertDescription className={saveType === 'error' ? 'text-destructive' : 'text-green-700'}>
+          
+          <div className="mb-2">
+            <div className="flex items-center gap-small mb-2">
+              <span className="text-small text-bold">Select Language:</span>
+              <select 
+                value={selectedLanguage} 
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                className="select select-lang"
+              >
+                <option value="">Choose language</option>
+                {availableLanguages.map(lang => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            {saveMessage && (
+              <div className={`alert ${saveType === 'error' ? 'alert-error' : 'alert-success'}`}>
+                <div className="alert-content">
+                  <span>{saveType === 'success' ? '✅' : '❌'}</span>
+                  <span className={saveType === 'error' ? 'alert-text-error' : 'alert-text-success'}>
                     {saveMessage}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {isLoading ? (
-                <LoadingSpinner message="Loading translations..." />
-              ) : (
-                <div className="space-y-4">
-                  {translations.map(translation => (
-                    <TranslationInput
-                      key={translation.key}
-                      translationKey={translation.key}
-                      value={translation.value}
-                      onSave={saveTranslation}
-                    />
-                  ))}
-                  {translations.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No translations found for this language.
-                    </div>
-                  )}
+                  </span>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            )}
+
+            {isLoading ? (
+              <LoadingSpinner message="Loading translations..." />
+            ) : (
+              <div>
+                {translations.map(translation => (
+                  <TranslationInput
+                    key={translation.key}
+                    translationKey={translation.key}
+                    value={translation.value}
+                    selectedLanguage={selectedLanguage}
+                    onSave={saveTranslation}
+                  />
+                ))}
+                {translations.length === 0 && (
+                  <div className="empty-state">
+                    No translations found for this language.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -6,19 +6,16 @@ import './i18n-backend'
 import App from './App.tsx'
 import Config from './pages/Config.tsx'
 import LoadingSpinner from './components/LoadingSpinner'
-import { ThemeProvider } from './components/theme-provider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="system">
-      <BrowserRouter>
-        <Suspense fallback={<LoadingSpinner message="Loading translations..." />}>
-          <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/config" element={<Config />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </ThemeProvider>
+    <BrowserRouter>
+      <Suspense fallback={<LoadingSpinner message="Loading translations..." />}>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/config" element={<Config />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
   </StrictMode>,
 )
