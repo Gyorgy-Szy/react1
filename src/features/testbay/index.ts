@@ -1,0 +1,1 @@
+export { default as TestbayPage } from './Testbay'

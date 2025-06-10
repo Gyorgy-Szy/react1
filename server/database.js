@@ -163,7 +163,54 @@ function initializeDatabase() {
       { lang: 'sd', namespace: 'notes', key: 'noteUpdated', value: 'نوٽ ڪاميابيءَ سان اپڊيٽ ٿيو!' },
       { lang: 'sd', namespace: 'notes', key: 'noteDeleted', value: 'نوٽ ڪاميابيءَ سان ڊاهيو ويو!' },
       { lang: 'sd', namespace: 'notes', key: 'noteError', value: 'نوٽ محفوظ ڪرڻ ۾ خرابي' },
-      { lang: 'sd', namespace: 'notes', key: 'deleteConfirm', value: 'ڇا توهان واقعي هن نوٽ کي ڊاهڻ چاهيو ٿا؟' }
+      { lang: 'sd', namespace: 'notes', key: 'deleteConfirm', value: 'ڇا توهان واقعي هن نوٽ کي ڊاهڻ چاهيو ٿا؟' },
+
+      // Testbay namespace - testing and debugging page
+      // English
+      { lang: 'en', namespace: 'testbay', key: 'title', value: 'Testbay' },
+      { lang: 'en', namespace: 'testbay', key: 'subtitle', value: 'Test i18next functionality and debug translation issues' },
+      { lang: 'en', namespace: 'testbay', key: 'differentCases', value: 'Different cases' },
+      { lang: 'en', namespace: 'testbay', key: 'exampleTextLabel', value: 'Example text in the current language' },
+      { lang: 'en', namespace: 'testbay', key: 'exampleText', value: 'This is the example text in English' },
+      { lang: 'en', namespace: 'testbay', key: 'missingTranslationLabel', value: 'Text missing in all languages but English' },
+      { lang: 'en', namespace: 'testbay', key: 'missingTranslation', value: 'There is no translation for this sentence' },
+      { lang: 'en', namespace: 'testbay', key: 'ltrOnlyLabel', value: 'This text is always ltr, no translation' },
+      { lang: 'en', namespace: 'testbay', key: 'debugInfo', value: 'Debug Information' },
+      { lang: 'en', namespace: 'testbay', key: 'debugInfoDesc', value: 'Current application state and i18next configuration details' },
+      { lang: 'en', namespace: 'testbay', key: 'currentLanguage', value: 'Current Language' },
+      { lang: 'en', namespace: 'testbay', key: 'languageValue', value: 'English (en)' },
+      { lang: 'en', namespace: 'testbay', key: 'loadedNamespaces', value: 'Loaded Namespaces' },
+      { lang: 'en', namespace: 'testbay', key: 'browserDirection', value: 'Browser Direction' },
+      
+      // Hungarian
+      { lang: 'hu', namespace: 'testbay', key: 'title', value: 'Tesztkörnyezet' },
+      { lang: 'hu', namespace: 'testbay', key: 'subtitle', value: 'i18next funkciók tesztelése és fordítási problémák hibakeresése' },
+      { lang: 'hu', namespace: 'testbay', key: 'differentCases', value: 'Különböző esetek' },
+      { lang: 'hu', namespace: 'testbay', key: 'exampleTextLabel', value: 'Példa szöveg a jelenlegi nyelven' },
+      { lang: 'hu', namespace: 'testbay', key: 'exampleText', value: 'Ez a példa szöveg magyarul' },
+      { lang: 'hu', namespace: 'testbay', key: 'missingTranslationLabel', value: 'Szöveg ami hiányzik minden nyelvből, csak angolul van' },
+      { lang: 'hu', namespace: 'testbay', key: 'ltrOnlyLabel', value: 'Ez a szöveg mindig balról jobbra, nincs fordítás' },
+      { lang: 'hu', namespace: 'testbay', key: 'debugInfo', value: 'Hibakeresési információk' },
+      { lang: 'hu', namespace: 'testbay', key: 'debugInfoDesc', value: 'Jelenlegi alkalmazás állapot és i18next konfigurációs részletek' },
+      { lang: 'hu', namespace: 'testbay', key: 'currentLanguage', value: 'Jelenlegi nyelv' },
+      { lang: 'hu', namespace: 'testbay', key: 'languageValue', value: 'Magyar (hu)' },
+      { lang: 'hu', namespace: 'testbay', key: 'loadedNamespaces', value: 'Betöltött névterek' },
+      { lang: 'hu', namespace: 'testbay', key: 'browserDirection', value: 'Böngésző irány' },
+      
+      // Sindhi
+      { lang: 'sd', namespace: 'testbay', key: 'title', value: 'ٽيسٽ بي' },
+      { lang: 'sd', namespace: 'testbay', key: 'subtitle', value: 'i18next جي ڪارڪردگي کي ٽيسٽ ڪريو ۽ ترجمي جي مسئلن کي حل ڪريو' },
+      { lang: 'sd', namespace: 'testbay', key: 'differentCases', value: 'مختلف حالتون' },
+      { lang: 'sd', namespace: 'testbay', key: 'exampleTextLabel', value: 'موجوده ٻولي ۾ مثال متن' },
+      { lang: 'sd', namespace: 'testbay', key: 'exampleText', value: 'هي سنڌي ۾ مثال جو متن آهي' },
+      { lang: 'sd', namespace: 'testbay', key: 'missingTranslationLabel', value: 'متن جيڪو سڀني ٻولين ۾ غائب آهي سواءِ انگريزي جي' },
+      { lang: 'sd', namespace: 'testbay', key: 'ltrOnlyLabel', value: 'هي متن هميشه کاٻي کان ساڄي طرف، ڪو ترجمو ناهي' },
+      { lang: 'sd', namespace: 'testbay', key: 'debugInfo', value: 'ڊيبگ معلومات' },
+      { lang: 'sd', namespace: 'testbay', key: 'debugInfoDesc', value: 'موجوده ايپليڪيشن جي حالت ۽ i18next ترتيبات جا تفصيل' },
+      { lang: 'sd', namespace: 'testbay', key: 'currentLanguage', value: 'موجوده ٻولي' },
+      { lang: 'sd', namespace: 'testbay', key: 'languageValue', value: 'سنڌي (sd)' },
+      { lang: 'sd', namespace: 'testbay', key: 'loadedNamespaces', value: 'لوڊ ٿيل نيم اسپيس' },
+      { lang: 'sd', namespace: 'testbay', key: 'browserDirection', value: 'برائوزر جو رخ' }
     ];
 
     const stmt = db.prepare(`

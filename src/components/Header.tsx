@@ -31,7 +31,6 @@ function Header() {
     }
   }
 
-  const isHomePage = location.pathname === '/'
 
   if (isChangingLanguage) {
     return <LoadingSpinner message="Changing language..." />
@@ -41,18 +40,41 @@ function Header() {
     <header className="header">
       <div className="header-content">
         <div className="header-nav">
-          {!isHomePage && (
-            <button
-              onClick={() => navigate('/')}
-              title={t('home')}
-              className="btn"
-            >
-              🏠
-            </button>
-          )}
+          <button
+            onClick={() => navigate('/')}
+            title={t('home')}
+            className="btn"
+          >
+            🏠
+          </button>
+          
+          <h1 className="header-title">PoC for i18next</h1>
+          
+          <button
+            onClick={() => navigate('/notes')}
+            className="btn btn-with-text"
+          >
+            📝 <span>Notes</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/testbay')}
+            className="btn btn-with-text"
+          >
+            🧪 <span>Testbay</span>
+          </button>
         </div>
         
         <div className="header-nav">
+          
+          <button
+            onClick={() => navigate('/config')}
+            title="Configuration"
+            className="btn"
+          >
+            ⚙️
+          </button>
+          
           <div className="header-controls">
             <span className="text-small text-muted">{t('language')}:</span>
             <select 
@@ -68,22 +90,6 @@ function Header() {
               ))}
             </select>
           </div>
-          
-          <button
-            onClick={() => navigate('/notes')}
-            title="Notes"
-            className="btn"
-          >
-            📝
-          </button>
-          
-          <button
-            onClick={() => navigate('/config')}
-            title="Configuration"
-            className="btn"
-          >
-            ⚙️
-          </button>
         </div>
       </div>
     </header>

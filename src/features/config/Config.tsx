@@ -125,7 +125,7 @@ function Config() {
                 onChange={(e) => setSelectedLanguage(e.target.value)}
                 className="select select-lang"
               >
-                <option value="">{t('config:chooseLanguage')}</option>
+                <option value="" disabled>{t('config:chooseLanguage')}</option>
                 {availableLanguages.map(lang => (
                   <option key={lang.code} value={lang.code}>
                     {lang.name}

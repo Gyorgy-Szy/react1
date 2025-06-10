@@ -7,6 +7,7 @@ import './i18n-backend'
 import App from './App.tsx'
 import { ConfigPage } from './features/config'
 import { NotesPage } from './features/notes'
+import { TestbayPage } from './features/testbay'
 import LoadingSpinner from './components/LoadingSpinner'
 import { setDocumentDirection } from './utils/rtl'
 
@@ -34,6 +35,7 @@ function AppWrapper() {
       <Route path="/" element={<App />} />
       <Route path="/config" element={<ConfigPage />} />
       <Route path="/notes" element={<NotesPage />} />
+      <Route path="/testbay" element={<TestbayPage />} />
     </Routes>
   )
 }
