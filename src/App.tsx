@@ -174,8 +174,14 @@ function App() {
                 If item is missing, and no fallback: item key will be displayed.
                 Item keys can be full text as well
               </li>
-              <li>.</li>
-              <li>.</li>
+              <li>
+                Interval plurals (1-5: some, 6-10: a handful of, 10+: a lot
+                of...)
+              </li>
+              <li>
+                i18next can handle arrays (interpolation, join) objects (and
+                plurals inside object etc.)
+              </li>
               <li>.</li>
             </ul>
 
