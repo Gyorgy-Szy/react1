@@ -7,19 +7,34 @@ interface TranslationInputProps {
   value: string
   selectedLanguage: string
   onSave: (key: string, value: string) => void
+  onDelete?: (key: string) => void
+  onAdd?: (key: string, value: string) => void
 }
 
-export default function TranslationInput({ translationKey, value, selectedLanguage, onSave }: TranslationInputProps) {
-  const { t } = useTranslation('general')
+export default function TranslationInput({ translationKey, value, selectedLanguage, onSave, onDelete, onAdd }: TranslationInputProps) {
+  const { t } = useTranslation(['general', 'config'])
   const [isEditing, setIsEditing] = useState(false)
   const [isLoadingEdit, setIsLoadingEdit] = useState(false)
   const [editValue, setEditValue] = useState(value)
   const [originalValue, setOriginalValue] = useState('')
   const [englishValue, setEnglishValue] = useState('')
 
+  const isMissing = value === '' // Empty value indicates missing translation
+  const isEnglish = selectedLanguage === 'en'
+
   const handleSave = () => {
-    onSave(translationKey, editValue)
+    if (isMissing && onAdd) {
+      onAdd(translationKey, editValue)
+    } else {
+      onSave(translationKey, editValue)
+    }
     setIsEditing(false)
+  }
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(translationKey)
+    }
   }
 
   const handleCancel = () => {
@@ -69,15 +84,31 @@ export default function TranslationInput({ translationKey, value, selectedLangua
       )}
       <div className="mb-1">
         <div className="translation-item">
-          <span className="translation-label">{translationKey}</span>
+          <span className="translation-label">
+            {translationKey}
+            {isMissing && !isEnglish && (
+              <span className="missing-indicator"> {t('config:missing')}</span>
+            )}
+          </span>
           {!isEditing && !isLoadingEdit && (
-            <button
-              onClick={handleEdit}
-              className="btn"
-              title={t('edit')}
-            >
-              ✏️
-            </button>
+            <div className="translation-actions">
+              <button
+                onClick={handleEdit}
+                className="btn"
+                title={isMissing ? t('config:add') : t('edit')}
+              >
+                {isMissing ? '➕' : '✏️'}
+              </button>
+              {!isMissing && !isEnglish && onDelete && (
+                <button
+                  onClick={handleDelete}
+                  className="btn btn-danger"
+                  title={t('config:remove')}
+                >
+                  🗑️
+                </button>
+              )}
+            </div>
           )}
         </div>
         
@@ -109,7 +140,7 @@ export default function TranslationInput({ translationKey, value, selectedLangua
                 onClick={handleSave}
                 className="btn-save"
               >
-                ✅ {t('save')}
+                ✅ {isMissing ? t('config:add') : t('save')}
               </button>
               <button
                 onClick={handleCancel}
@@ -117,6 +148,14 @@ export default function TranslationInput({ translationKey, value, selectedLangua
               >
                 ❌ {t('cancel')}
               </button>
+              {!isMissing && !isEnglish && onDelete && (
+                <button
+                  onClick={handleDelete}
+                  className="btn btn-danger"
+                >
+                  🗑️ {t('config:remove')}
+                </button>
+              )}
             </div>
           </div>
         ) : (

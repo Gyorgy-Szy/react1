@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { getTranslations, getTranslationsByNamespace, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote, getAllDelaySettings, getDelayForEndpoint, updateDelaySettings, getSingleTranslation } from './database.js';
+import { getTranslations, getTranslationsByNamespace, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote, getAllDelaySettings, getDelayForEndpoint, updateDelaySettings, getSingleTranslation, deleteTranslation, createTranslation } from './database.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -156,6 +156,59 @@ app.put('/api/translations/:language/:namespace/:key', (req, res) => {
       key,
       value,
       changes: result.changes
+    });
+  });
+});
+
+// Delete a specific translation
+app.delete('/api/translations/:language/:namespace/:key', (req, res) => {
+  const { language, namespace, key } = req.params;
+  
+  deleteTranslation(language, namespace, key, (err, result) => {
+    if (err) {
+      console.error('Error deleting translation:', err);
+      if (err.message === 'Translation not found') {
+        res.status(404).json({ error: 'Translation not found' });
+      } else {
+        res.status(500).json({ error: 'Failed to delete translation' });
+      }
+      return;
+    }
+    
+    res.json({ 
+      success: true,
+      language,
+      namespace,
+      key,
+      changes: result.changes
+    });
+  });
+});
+
+// Create a new translation
+app.post('/api/translations/:language/:namespace/:key', (req, res) => {
+  const { language, namespace, key } = req.params;
+  const { value } = req.body;
+  
+  if (!value) {
+    res.status(400).json({ error: 'Translation value is required' });
+    return;
+  }
+  
+  createTranslation(language, namespace, key, value, (err, result) => {
+    if (err) {
+      console.error('Error creating translation:', err);
+      res.status(500).json({ error: 'Failed to create translation' });
+      return;
+    }
+    
+    res.status(201).json({ 
+      success: true,
+      language,
+      namespace,
+      key,
+      value,
+      id: result.id
     });
   });
 });

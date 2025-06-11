@@ -183,7 +183,10 @@ function App() {
                 i18next can handle arrays (interpolation, join) objects (and
                 plurals inside object etc.)
               </li>
-              <li></li>
+              <li>
+                if there is an ltr fallback to rtl, the line still formatted as
+                rtl
+              </li>
             </ul>
 
             <h2 className="text-medium mb-2">Migration Process</h2>

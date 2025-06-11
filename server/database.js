@@ -113,6 +113,15 @@ function initializeDatabase() {
       { lang: 'en', namespace: 'config', key: 'loadingDelaySettings', value: 'Loading delay settings...' },
       { lang: 'en', namespace: 'config', key: 'delaySettingsSaved', value: 'Delay settings saved successfully!' },
       { lang: 'en', namespace: 'config', key: 'delaySettingsError', value: 'Error saving delay settings' },
+      { lang: 'en', namespace: 'config', key: 'openAll', value: 'Open All' },
+      { lang: 'en', namespace: 'config', key: 'remove', value: 'Remove' },
+      { lang: 'en', namespace: 'config', key: 'add', value: 'Add' },
+      { lang: 'en', namespace: 'config', key: 'missing', value: '(Missing)' },
+      { lang: 'en', namespace: 'config', key: 'removeConfirm', value: 'Are you sure you want to remove this translation?' },
+      { lang: 'en', namespace: 'config', key: 'translationRemoved', value: 'Translation removed successfully!' },
+      { lang: 'en', namespace: 'config', key: 'translationAdded', value: 'Translation added successfully!' },
+      { lang: 'en', namespace: 'config', key: 'removeError', value: 'Error removing translation' },
+      { lang: 'en', namespace: 'config', key: 'addError', value: 'Error adding translation' },
       
       // Hungarian
       { lang: 'hu', namespace: 'config', key: 'title', value: 'Beállítások' },
@@ -133,6 +142,15 @@ function initializeDatabase() {
       { lang: 'hu', namespace: 'config', key: 'loadingDelaySettings', value: 'Késleltetési beállítások betöltése...' },
       { lang: 'hu', namespace: 'config', key: 'delaySettingsSaved', value: 'Késleltetési beállítások sikeresen mentve!' },
       { lang: 'hu', namespace: 'config', key: 'delaySettingsError', value: 'Hiba a késleltetési beállítások mentésekor' },
+      { lang: 'hu', namespace: 'config', key: 'openAll', value: 'Összes megnyitása' },
+      { lang: 'hu', namespace: 'config', key: 'remove', value: 'Eltávolítás' },
+      { lang: 'hu', namespace: 'config', key: 'add', value: 'Hozzáadás' },
+      { lang: 'hu', namespace: 'config', key: 'missing', value: '(Hiányzó)' },
+      { lang: 'hu', namespace: 'config', key: 'removeConfirm', value: 'Biztosan el szeretnéd távolítani ezt a fordítást?' },
+      { lang: 'hu', namespace: 'config', key: 'translationRemoved', value: 'Fordítás sikeresen eltávolítva!' },
+      { lang: 'hu', namespace: 'config', key: 'translationAdded', value: 'Fordítás sikeresen hozzáadva!' },
+      { lang: 'hu', namespace: 'config', key: 'removeError', value: 'Hiba a fordítás eltávolításakor' },
+      { lang: 'hu', namespace: 'config', key: 'addError', value: 'Hiba a fordítás hozzáadásakor' },
       
       // Sindhi
       { lang: 'sd', namespace: 'config', key: 'title', value: 'ترتيبات' },
@@ -153,6 +171,15 @@ function initializeDatabase() {
       { lang: 'sd', namespace: 'config', key: 'loadingDelaySettings', value: 'دير جون سيٽنگس لوڊ ٿي رهيون آهن...' },
       { lang: 'sd', namespace: 'config', key: 'delaySettingsSaved', value: 'دير جون سيٽنگس ڪاميابيءَ سان محفوظ ٿيون!' },
       { lang: 'sd', namespace: 'config', key: 'delaySettingsError', value: 'دير جون سيٽنگس محفوظ ڪرڻ ۾ خرابي' },
+      { lang: 'sd', namespace: 'config', key: 'openAll', value: 'سڀ کوليو' },
+      { lang: 'sd', namespace: 'config', key: 'remove', value: 'هٽايو' },
+      { lang: 'sd', namespace: 'config', key: 'add', value: 'شامل ڪريو' },
+      { lang: 'sd', namespace: 'config', key: 'missing', value: '(غائب)' },
+      { lang: 'sd', namespace: 'config', key: 'removeConfirm', value: 'ڇا توهان واقعي هن ترجمي کي هٽائڻ چاهيو ٿا؟' },
+      { lang: 'sd', namespace: 'config', key: 'translationRemoved', value: 'ترجمو ڪاميابيءَ سان هٽايو ويو!' },
+      { lang: 'sd', namespace: 'config', key: 'translationAdded', value: 'ترجمو ڪاميابيءَ سان شامل ڪيو ويو!' },
+      { lang: 'sd', namespace: 'config', key: 'removeError', value: 'ترجمو هٽائڻ ۾ خرابي' },
+      { lang: 'sd', namespace: 'config', key: 'addError', value: 'ترجمو شامل ڪرڻ ۾ خرابي' },
 
       // Notes namespace - notes page
       // English
@@ -432,6 +459,43 @@ export function updateTranslation(languageCode, namespace, translationKey, trans
     }
     
     callback(null, { success: true, changes: this.changes });
+  });
+}
+
+export function deleteTranslation(languageCode, namespace, translationKey, callback) {
+  const query = `
+    DELETE FROM translations 
+    WHERE language_code = ? AND namespace = ? AND translation_key = ?
+  `;
+  
+  db.run(query, [languageCode, namespace, translationKey], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    if (this.changes === 0) {
+      callback(new Error('Translation not found'), null);
+      return;
+    }
+    
+    callback(null, { success: true, changes: this.changes });
+  });
+}
+
+export function createTranslation(languageCode, namespace, translationKey, translationValue, callback) {
+  const query = `
+    INSERT INTO translations (language_code, namespace, translation_key, translation_value)
+    VALUES (?, ?, ?, ?)
+  `;
+  
+  db.run(query, [languageCode, namespace, translationKey, translationValue], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    callback(null, { success: true, id: this.lastID });
   });
 }
 

@@ -687,3 +687,130 @@ body {
     margin-right: 0.5rem;
   }
 }
+
+/* Namespace Group Styles */
+.namespace-group {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.namespace-header {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.2s;
+}
+
+.namespace-header:hover {
+  background-color: #f3f4f6;
+}
+
+.namespace-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.namespace-chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+  color: #6b7280;
+}
+
+.namespace-chevron.open {
+  transform: rotate(90deg);
+}
+
+.namespace-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.namespace-content.collapsed {
+  max-height: 0;
+}
+
+.namespace-content.expanded {
+  max-height: 10000px; /* Large enough for any number of translations */
+}
+
+.namespace-translations {
+  padding: 0.5rem;
+}
+
+.namespace-count {
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.translations-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.btn-toggle-all {
+  padding: 0.5rem 1rem;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.btn-toggle-all:hover {
+  background-color: #4b5563;
+}
+
+/* RTL support for namespace groups */
+[dir="rtl"] .namespace-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .namespace-title {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .namespace-chevron {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .namespace-chevron.open {
+  transform: rotate(270deg);
+}
+
+[dir="rtl"] .translations-controls {
+  flex-direction: row-reverse;
+}
+
+/* Missing Translation Styles */
+.missing-indicator {
+  color: #f59e0b;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.btn-danger {
+  background-color: #ef4444 !important;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626 !important;
+}
