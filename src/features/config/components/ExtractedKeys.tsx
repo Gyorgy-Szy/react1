@@ -36,7 +36,7 @@ function ExtractedKeys({ onMessage }: ExtractedKeysProps) {
         setExtractedKeys(data.keys)
         
         // Initially collapse all namespaces
-        const namespaces = [...new Set(data.keys.map((key: ExtractedKey) => key.namespace))]
+        const namespaces = [...new Set(data.keys.map((key: ExtractedKey) => key.namespace))] as string[]
         setCollapsedNamespaces(new Set(namespaces))
       } else {
         throw new Error('Failed to load extracted keys')

@@ -56,9 +56,6 @@ i18n
     // Enable lazy loading for other namespaces
     partialBundledLanguages: true,
     
-    // Wait for namespace loading to complete
-    wait: true,
-    
     // Enable React Suspense for namespace loading
     react: {
       useSuspense: true,

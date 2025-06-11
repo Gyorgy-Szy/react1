@@ -380,6 +380,22 @@ body {
   position: relative;
 }
 
+/* Status-based colored borders */
+.translation-card.status-missing {
+  border-color: #f59e0b;
+  border-width: 2px;
+}
+
+.translation-card.status-newInCode {
+  border-color: #10b981;
+  border-width: 2px;
+}
+
+.translation-card.status-notUsed {
+  border-color: #ef4444;
+  border-width: 2px;
+}
+
 .translation-item {
   display: flex;
   align-items: center;
@@ -747,13 +763,39 @@ body {
   padding: 0.5rem;
 }
 
+.namespace-counts {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
 .namespace-count {
-  background-color: #e5e7eb;
-  color: #374151;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.namespace-count.normal {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.namespace-count.missing {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.namespace-count.new-in-code {
+  background-color: #10b981;
+  color: white;
+}
+
+.namespace-count.not-used {
+  background-color: #ef4444;
+  color: white;
 }
 
 .translations-controls {

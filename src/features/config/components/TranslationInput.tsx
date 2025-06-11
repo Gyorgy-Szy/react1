@@ -24,6 +24,14 @@ export default function TranslationInput({ translationKey, value, selectedLangua
   const isEnglish = selectedLanguage === 'en'
   const isNewInCode = status === 'newInCode'
   const isNotUsed = status === 'notUsed'
+  
+  // Get CSS class for colored border based on status
+  const getStatusClass = () => {
+    if (status === 'missing') return 'status-missing'
+    if (status === 'newInCode') return 'status-newInCode'
+    if (status === 'notUsed') return 'status-notUsed'
+    return ''
+  }
 
   const handleSave = () => {
     if ((isMissing || isNewInCode) && onAdd) {
@@ -79,7 +87,7 @@ export default function TranslationInput({ translationKey, value, selectedLangua
   }
 
   return (
-    <div className="card-small translation-card">
+    <div className={`card-small translation-card ${getStatusClass()}`}>
       {isLoadingEdit && (
         <div className="translation-loading-overlay">
           <div className="translation-mini-spinner"></div>
@@ -89,13 +97,13 @@ export default function TranslationInput({ translationKey, value, selectedLangua
         <div className="translation-item">
           <span className="translation-label">
             {translationKey}
-            {isNewInCode && !isEnglish && (
+            {isNewInCode && (
               <span className="new-in-code-indicator"> {t('config:newInCode')}</span>
             )}
-            {isMissing && !isNewInCode && !isEnglish && (
+            {isMissing && !isNewInCode && (
               <span className="missing-indicator"> {t('config:missing')}</span>
             )}
-            {isNotUsed && !isEnglish && (
+            {isNotUsed && (
               <span className="not-used-indicator"> {t('config:notUsedInCode')}</span>
             )}
           </span>

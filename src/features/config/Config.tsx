@@ -29,9 +29,10 @@ function Config() {
   const { t } = useTranslation(['config', 'general'], { useSuspense: true })
   const [availableLanguages, setAvailableLanguages] = useState<Array<{code: string, name: string}>>([])
   const [selectedLanguage, setSelectedLanguage] = useState('')
-  const [translations, setTranslations] = useState<Translation[]>([])
+  const [, setTranslations] = useState<Translation[]>([])
   const [namespaceGroups, setNamespaceGroups] = useState<NamespaceGroup[]>([])
   const [extractedKeys, setExtractedKeys] = useState<ExtractedKey[]>([])
+  const [englishTranslations, setEnglishTranslations] = useState<Record<string, Record<string, string>>>({})
   const [collapsedNamespaces, setCollapsedNamespaces] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
@@ -79,19 +80,20 @@ function Config() {
         currentTranslations = data.translations
       }
       
-      // Load English translations to find missing keys (only if not English)
-      let englishTranslations: Record<string, Record<string, string>> = {}
-      if (language !== 'en') {
-        try {
-          const englishResponse = await fetch(`/api/translations/en`)
-          if (englishResponse.ok) {
-            const englishData = await englishResponse.json()
-            englishTranslations = englishData.translations
-          }
-        } catch (error) {
-          console.error('Error loading English translations:', error)
+      // Load English translations to find missing keys
+      let englishTranslationsData: Record<string, Record<string, string>> = {}
+      try {
+        const englishResponse = await fetch(`/api/translations/en`)
+        if (englishResponse.ok) {
+          const englishData = await englishResponse.json()
+          englishTranslationsData = englishData.translations
         }
+      } catch (error) {
+        console.error('Error loading English translations:', error)
       }
+      
+      // Store English translations in state for status detection
+      setEnglishTranslations(englishTranslationsData)
       
       // Create a map of extracted keys for quick lookup
       const extractedKeysMap = new Map<string, ExtractedKey>()
@@ -113,12 +115,12 @@ function Config() {
       
       allNamespaces.forEach(namespace => {
         const currentNs = currentTranslations[namespace] || {}
-        const englishNs = englishTranslations[namespace] || {}
+        const englishNs = englishTranslationsData[namespace] || {}
         
         // Get all keys from all sources
         const allKeys = new Set([
           ...Object.keys(currentNs),
-          ...(language !== 'en' ? Object.keys(englishNs) : []),
+          ...Object.keys(englishNs),
           ...extractedKeys
             .filter(key => key.namespace === namespace)
             .map(key => key.translation_key)
@@ -129,9 +131,6 @@ function Config() {
         // Create translations for all keys
         allKeys.forEach(key => {
           const fullKey = `${namespace}:${key}`
-          const hasCurrentTranslation = key in currentNs
-          const hasEnglishTranslation = key in englishNs
-          const isInExtractedKeys = extractedKeysMap.has(fullKey)
           
           const translation = {
             key: fullKey,
@@ -291,7 +290,23 @@ function Config() {
     return namespace.charAt(0).toUpperCase() + namespace.slice(1)
   }
 
-  const getTranslationStatus = (key: string, value: string, language: string) => {
+  const getNamespaceStatusCounts = (group: NamespaceGroup) => {
+    const counts = {
+      normal: 0,
+      missing: 0,
+      newInCode: 0,
+      notUsed: 0
+    }
+    
+    group.translations.forEach(translation => {
+      const status = getTranslationStatus(translation.key, translation.value, selectedLanguage, englishTranslations)
+      counts[status]++
+    })
+    
+    return counts
+  }
+
+  const getTranslationStatus = (key: string, value: string, language: string, englishTranslations: Record<string, Record<string, string>>) => {
     const extractedKeysMap = new Map<string, ExtractedKey>()
     extractedKeys.forEach(extractedKey => {
       const fullKey = `${extractedKey.namespace}:${extractedKey.translation_key}`
@@ -302,18 +317,33 @@ function Config() {
     const hasValue = value !== ''
     const isEnglish = language === 'en'
     
-    // For extracted keys that don't have translations in current language
-    if (isInExtractedKeys && !hasValue && !isEnglish) {
-      return 'newInCode'
+    // Check if key exists in English
+    const [namespace, translationKey] = key.split(':')
+    const existsInEnglish = englishTranslations[namespace]?.[translationKey] !== undefined
+    
+    // For English language: show indicators based on code usage
+    if (isEnglish) {
+      if (hasValue && !isInExtractedKeys) {
+        return 'notUsed' // English translation exists but not used in code
+      }
+      if (isInExtractedKeys && !hasValue) {
+        return 'newInCode' // Found in code but no English translation
+      }
+      return 'normal'
     }
     
-    // For missing translations (exist in English but not in current language)
-    if (!hasValue && !isEnglish) {
-      return 'missing'
+    // For non-English languages: prioritize "Missing" over "New in code"
+    if (!hasValue) {
+      if (existsInEnglish) {
+        return 'missing' // Missing translation (English exists)
+      } else if (isInExtractedKeys) {
+        return 'newInCode' // New in code (no English either)
+      }
+      return 'missing' // Default to missing for empty values
     }
     
     // For translations that exist but are not used in code
-    if (hasValue && !isInExtractedKeys && !isEnglish) {
+    if (hasValue && !isInExtractedKeys) {
       return 'notUsed'
     }
     
@@ -401,25 +431,39 @@ function Config() {
                   </div>
                 )}
                 
-                {namespaceGroups.map(group => (
-                  <div key={group.namespace} className="namespace-group">
-                    <div 
-                      className="namespace-header"
-                      onClick={() => toggleNamespace(group.namespace)}
-                    >
-                      <div className="namespace-title">
-                        <svg 
-                          className={`namespace-chevron ${!collapsedNamespaces.has(group.namespace) ? 'open' : ''}`}
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                        <span>{formatNamespaceName(group.namespace)}</span>
-                        <span className="namespace-count">{group.translations.length}</span>
+                {namespaceGroups.map(group => {
+                  const statusCounts = getNamespaceStatusCounts(group)
+                  
+                  return (
+                    <div key={group.namespace} className="namespace-group">
+                      <div 
+                        className="namespace-header"
+                        onClick={() => toggleNamespace(group.namespace)}
+                      >
+                        <div className="namespace-title">
+                          <svg 
+                            className={`namespace-chevron ${!collapsedNamespaces.has(group.namespace) ? 'open' : ''}`}
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                          <span>{formatNamespaceName(group.namespace)}</span>
+                          <div className="namespace-counts">
+                            <span className="namespace-count normal">{statusCounts.normal}</span>
+                            {statusCounts.newInCode > 0 && (
+                              <span className="namespace-count new-in-code">{statusCounts.newInCode}</span>
+                            )}
+                            {statusCounts.missing > 0 && (
+                              <span className="namespace-count missing">{statusCounts.missing}</span>
+                            )}
+                            {statusCounts.notUsed > 0 && (
+                              <span className="namespace-count not-used">{statusCounts.notUsed}</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
                     <div 
                       className={`namespace-content ${collapsedNamespaces.has(group.namespace) ? 'collapsed' : 'expanded'}`}
                     >
@@ -430,7 +474,7 @@ function Config() {
                             translationKey={translation.key}
                             value={translation.value}
                             selectedLanguage={selectedLanguage}
-                            status={getTranslationStatus(translation.key, translation.value, selectedLanguage)}
+                            status={getTranslationStatus(translation.key, translation.value, selectedLanguage, englishTranslations)}
                             onSave={saveTranslation}
                             onDelete={deleteTranslation}
                             onAdd={addTranslation}
@@ -439,7 +483,8 @@ function Config() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  )
+                })}
                 
                 {namespaceGroups.length === 0 && (
                   <div className="empty-state">

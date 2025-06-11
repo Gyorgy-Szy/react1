@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getAvailableLanguages } from '../i18n-backend'
 import LoadingSpinner from './LoadingSpinner'
@@ -7,7 +7,6 @@ import { isRTLLanguage } from '../utils/rtl'
 
 function Header() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { t, i18n } = useTranslation('general')
   const [availableLanguages, setAvailableLanguages] = useState<Array<{code: string, name: string}>>([])
   const [isChangingLanguage, setIsChangingLanguage] = useState(false)
