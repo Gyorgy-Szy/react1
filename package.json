@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "nodemon server/server.js"
+    "server": "nodemon server/server.js",
+    "migrate-db": "node scripts/migrate-db.js",
+    "extract-keys": "node scripts/extract-keys.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.18",
@@ -37,6 +39,7 @@
     "globals": "^16.0.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "i18next-scanner": "^4.7.0"
   }
 }

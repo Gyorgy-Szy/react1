@@ -4,6 +4,7 @@ import { getAvailableLanguages } from '../../i18n-backend'
 import Header from '../../components/Header'
 import TranslationInput from './components/TranslationInput'
 import DelaySettings from './components/DelaySettings'
+import ExtractedKeys from './components/ExtractedKeys'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
 interface Translation {
@@ -377,6 +378,22 @@ function Config() {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="card">
+          <div className="mb-3">
+            <h2 className="text-medium flex items-center gap-small">
+              🔍 {t('config:extractedKeys')}
+            </h2>
+            <p className="text-muted text-small">
+              {t('config:extractedKeysDesc')}
+            </p>
+          </div>
+          
+          <ExtractedKeys onMessage={(message, type) => {
+            setSaveMessage(message)
+            setSaveType(type)
+          }} />
         </div>
       </div>
     </div>

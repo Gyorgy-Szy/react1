@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { getTranslations, getTranslationsByNamespace, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote, getAllDelaySettings, getDelayForEndpoint, updateDelaySettings, getSingleTranslation, deleteTranslation, createTranslation } from './database.js';
+import { getTranslations, getTranslationsByNamespace, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote, getAllDelaySettings, getDelayForEndpoint, updateDelaySettings, getSingleTranslation, deleteTranslation, createTranslation, getAllExtractedKeys } from './database.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -350,6 +350,18 @@ app.put('/api/delay-settings/:endpoint', (req, res) => {
       delay_ms: parseInt(delay_ms),
       changes: result.changes
     });
+  });
+});
+
+// Extracted keys endpoints
+app.get('/api/extracted-keys', (req, res) => {
+  getAllExtractedKeys((err, keys) => {
+    if (err) {
+      console.error('Error fetching extracted keys:', err);
+      res.status(500).json({ error: 'Failed to fetch extracted keys' });
+      return;
+    }
+    res.json({ keys });
   });
 });
 

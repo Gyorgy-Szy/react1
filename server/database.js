@@ -51,6 +51,20 @@ function initializeDatabase() {
       )
     `);
 
+    // Create extracted_keys table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS extracted_keys (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        namespace TEXT NOT NULL,
+        translation_key TEXT NOT NULL,
+        file_path TEXT,
+        line_number INTEGER,
+        usage_count INTEGER DEFAULT 1,
+        last_extracted DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(namespace, translation_key)
+      )
+    `);
+
     // Insert initial namespaced translations
     const translations = [
       // General namespace - common UI elements
@@ -122,6 +136,8 @@ function initializeDatabase() {
       { lang: 'en', namespace: 'config', key: 'translationAdded', value: 'Translation added successfully!' },
       { lang: 'en', namespace: 'config', key: 'removeError', value: 'Error removing translation' },
       { lang: 'en', namespace: 'config', key: 'addError', value: 'Error adding translation' },
+      { lang: 'en', namespace: 'config', key: 'extractedKeys', value: 'Extracted Keys' },
+      { lang: 'en', namespace: 'config', key: 'extractedKeysDesc', value: 'Translation keys found in your codebase. Run "npm run extract-keys" to scan for new keys.' },
       
       // Hungarian
       { lang: 'hu', namespace: 'config', key: 'title', value: 'Beállítások' },
@@ -151,6 +167,8 @@ function initializeDatabase() {
       { lang: 'hu', namespace: 'config', key: 'translationAdded', value: 'Fordítás sikeresen hozzáadva!' },
       { lang: 'hu', namespace: 'config', key: 'removeError', value: 'Hiba a fordítás eltávolításakor' },
       { lang: 'hu', namespace: 'config', key: 'addError', value: 'Hiba a fordítás hozzáadásakor' },
+      { lang: 'hu', namespace: 'config', key: 'extractedKeys', value: 'Kivont kulcsok' },
+      { lang: 'hu', namespace: 'config', key: 'extractedKeysDesc', value: 'A kódbázisban talált fordítási kulcsok. Futtasd az "npm run extract-keys" parancsot új kulcsok kereséséhez.' },
       
       // Sindhi
       { lang: 'sd', namespace: 'config', key: 'title', value: 'ترتيبات' },
@@ -180,6 +198,8 @@ function initializeDatabase() {
       { lang: 'sd', namespace: 'config', key: 'translationAdded', value: 'ترجمو ڪاميابيءَ سان شامل ڪيو ويو!' },
       { lang: 'sd', namespace: 'config', key: 'removeError', value: 'ترجمو هٽائڻ ۾ خرابي' },
       { lang: 'sd', namespace: 'config', key: 'addError', value: 'ترجمو شامل ڪرڻ ۾ خرابي' },
+      { lang: 'sd', namespace: 'config', key: 'extractedKeys', value: 'ڪڍيل چاٻيون' },
+      { lang: 'sd', namespace: 'config', key: 'extractedKeysDesc', value: 'توهان جي ڪوڊ بيس ۾ مليل ترجمي جون چاٻيون. نئون چاٻيون ڳولڻ لاءِ "npm run extract-keys" هلايو.' },
 
       // Notes namespace - notes page
       // English
@@ -616,6 +636,62 @@ export function updateDelaySettings(endpointName, delayMs, callback) {
     }
     
     callback(null, { success: true, changes: this.changes });
+  });
+}
+
+// Extracted keys CRUD operations
+export function getAllExtractedKeys(callback) {
+  const query = `
+    SELECT ek.*, 
+           t.translation_value as english_value
+    FROM extracted_keys ek
+    LEFT JOIN translations t ON (
+      t.language_code = 'en' AND 
+      t.namespace = ek.namespace AND 
+      t.translation_key = ek.translation_key
+    )
+    ORDER BY ek.namespace, ek.translation_key
+  `;
+  
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    callback(null, rows);
+  });
+}
+
+export function insertExtractedKey(namespace, translationKey, filePath, lineNumber, callback) {
+  const query = `
+    INSERT OR REPLACE INTO extracted_keys 
+    (namespace, translation_key, file_path, line_number, usage_count, last_extracted)
+    VALUES (?, ?, ?, ?, 
+      COALESCE((SELECT usage_count + 1 FROM extracted_keys WHERE namespace = ? AND translation_key = ?), 1),
+      CURRENT_TIMESTAMP)
+  `;
+  
+  db.run(query, [namespace, translationKey, filePath, lineNumber, namespace, translationKey], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    callback(null, { success: true, id: this.lastID });
+  });
+}
+
+export function clearExtractedKeys(callback) {
+  const query = `DELETE FROM extracted_keys`;
+  
+  db.run(query, [], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    callback(null, { success: true, deleted: this.changes });
   });
 }
 
