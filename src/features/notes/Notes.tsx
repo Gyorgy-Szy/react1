@@ -12,7 +12,7 @@ interface Note {
 }
 
 function Notes() {
-  const { t } = useTranslation(['notes', 'general'])
+  const { t } = useTranslation(['notes', 'general'], { useSuspense: true })
   const [notes, setNotes] = useState<Note[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')

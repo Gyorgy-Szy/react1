@@ -4,7 +4,7 @@ import Header from "./components/Header";
 
 function App() {
   const [count, setCount] = useState(0);
-  const { t } = useTranslation("general");
+  const { t } = useTranslation("general", { useSuspense: true });
 
   return (
     <div className="page">
@@ -172,7 +172,8 @@ function App() {
               <li>Possiblilty for "case switch" messages</li>
               <li>
                 If item is missing, and no fallback: item key will be displayed.
-                Item keys can be full text as well
+                Item keys can be full text as well (Consider: item key can be
+                endpoint parameter)
               </li>
               <li>
                 Interval plurals (1-5: some, 6-10: a handful of, 10+: a lot
@@ -182,7 +183,7 @@ function App() {
                 i18next can handle arrays (interpolation, join) objects (and
                 plurals inside object etc.)
               </li>
-              <li>.</li>
+              <li></li>
             </ul>
 
             <h2 className="text-medium mb-2">Migration Process</h2>

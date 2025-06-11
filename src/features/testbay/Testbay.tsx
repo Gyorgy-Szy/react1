@@ -2,7 +2,7 @@ import { useTranslation, Trans } from 'react-i18next'
 import Header from '../../components/Header'
 
 function Testbay() {
-  const { t } = useTranslation(['testbay', 'general'])
+  const { t } = useTranslation(['testbay', 'general'], { useSuspense: true })
 
   return (
     <div className="page">

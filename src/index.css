@@ -579,3 +579,111 @@ body {
   background-color: #9ca3af;
   cursor: not-allowed;
 }
+
+/* Delay Settings Styles */
+.delay-settings-table {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.delay-settings-header {
+  display: grid;
+  grid-template-columns: 1fr 120px 2fr 100px;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.delay-settings-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 2fr 100px;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: center;
+}
+
+.delay-settings-row:last-child {
+  border-bottom: none;
+}
+
+.delay-settings-row:hover {
+  background-color: #f9fafb;
+}
+
+.delay-settings-col {
+  display: flex;
+  align-items: center;
+}
+
+.delay-settings-col-wide {
+  display: flex;
+  align-items: center;
+}
+
+.delay-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.delay-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-save-small {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.btn-save-small:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-save-small:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* RTL support for delay settings */
+[dir="rtl"] .delay-settings-header,
+[dir="rtl"] .delay-settings-row {
+  grid-template-columns: 100px 2fr 120px 1fr;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .delay-settings-header,
+  .delay-settings-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .delay-settings-col,
+  .delay-settings-col-wide {
+    justify-content: space-between;
+    padding: 0.5rem 0;
+  }
+  
+  .delay-settings-col::before,
+  .delay-settings-col-wide::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #374151;
+    margin-right: 0.5rem;
+  }
+}

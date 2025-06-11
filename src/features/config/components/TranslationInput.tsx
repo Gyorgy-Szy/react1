@@ -35,27 +35,26 @@ export default function TranslationInput({ translationKey, value, selectedLangua
     // Fetch English translation if current language is not English
     if (selectedLanguage !== 'en') {
       try {
-        const response = await fetch(`/api/translations/en`)
-        if (response.ok) {
-          const data = await response.json()
-          // Handle namespaced translations
-          let englishTranslation = ''
-          if (translationKey.includes(':')) {
-            const [namespace, key] = translationKey.split(':')
-            englishTranslation = data.translations[namespace]?.[key] || ''
-          } else {
-            // Fallback for old format
-            englishTranslation = data.translations[translationKey] || ''
+        if (translationKey.includes(':')) {
+          const [namespace, key] = translationKey.split(':')
+          const response = await fetch(`/api/translations/en/${namespace}/${key}`)
+          if (response.ok) {
+            const data = await response.json()
+            setEnglishValue(data.value || '')
+          } else if (response.status === 404) {
+            // Translation not found in English
+            setEnglishValue('')
           }
-          setEnglishValue(englishTranslation)
+        } else {
+          // Fallback for old format - this shouldn't happen with current data structure
+          console.warn('Translation key without namespace:', translationKey)
+          setEnglishValue('')
         }
       } catch (error) {
         console.error('Error fetching English translation:', error)
+        setEnglishValue('')
       }
     }
-    
-    // Add 0.5 second delay to show loading indicator
-    await new Promise(resolve => setTimeout(resolve, 500))
     
     setIsLoadingEdit(false)
     setIsEditing(true)

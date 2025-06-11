@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { getAvailableLanguages } from '../../i18n-backend'
 import Header from '../../components/Header'
 import TranslationInput from './components/TranslationInput'
+import DelaySettings from './components/DelaySettings'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
 interface Translation {
@@ -11,7 +12,7 @@ interface Translation {
 }
 
 function Config() {
-  const { t } = useTranslation(['config', 'general'])
+  const { t } = useTranslation(['config', 'general'], { useSuspense: true })
   const [availableLanguages, setAvailableLanguages] = useState<Array<{code: string, name: string}>>([])
   const [selectedLanguage, setSelectedLanguage] = useState('')
   const [translations, setTranslations] = useState<Translation[]>([])
@@ -105,6 +106,22 @@ function Config() {
           <p className="text-muted">
             {t('config:subtitle')}
           </p>
+        </div>
+
+        <div className="card">
+          <div className="mb-3">
+            <h2 className="text-medium flex items-center gap-small">
+              ⚙️ {t('config:delaySettings')}
+            </h2>
+            <p className="text-muted text-small">
+              {t('config:delaySettingsDesc')}
+            </p>
+          </div>
+          
+          <DelaySettings onSaveMessage={(message, type) => {
+            setSaveMessage(message)
+            setSaveType(type)
+          }} />
         </div>
 
         <div className="card">

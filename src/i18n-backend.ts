@@ -56,6 +56,19 @@ i18n
     // Enable lazy loading for other namespaces
     partialBundledLanguages: true,
     
+    // Wait for namespace loading to complete
+    wait: true,
+    
+    // Enable React Suspense for namespace loading
+    react: {
+      useSuspense: true,
+      bindI18n: 'languageChanged loaded',
+      bindI18nStore: 'added removed',
+      transEmptyNodeValue: '',
+      transSupportBasicHtmlNodes: true,
+      transKeepBasicHtmlNodesFor: ['br', 'strong', 'i', 'p']
+    },
+    
     // Clean up language codes
     cleanCode: true,
     

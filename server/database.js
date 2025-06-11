@@ -40,6 +40,17 @@ function initializeDatabase() {
       )
     `);
 
+    // Create delay_settings table
+    db.run(`
+      CREATE TABLE IF NOT EXISTS delay_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        endpoint_name TEXT NOT NULL UNIQUE,
+        delay_ms INTEGER NOT NULL DEFAULT 500,
+        description TEXT,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Insert initial namespaced translations
     const translations = [
       // General namespace - common UI elements
@@ -94,6 +105,14 @@ function initializeDatabase() {
       { lang: 'en', namespace: 'config', key: 'noTranslations', value: 'No translations found for this language.' },
       { lang: 'en', namespace: 'config', key: 'translationSaved', value: 'Translation "{{key}}" saved successfully!' },
       { lang: 'en', namespace: 'config', key: 'translationError', value: 'Error saving translation "{{key}}"' },
+      { lang: 'en', namespace: 'config', key: 'delaySettings', value: 'API Delay Settings' },
+      { lang: 'en', namespace: 'config', key: 'delaySettingsDesc', value: 'Configure response delays for different API endpoints to simulate loading states.' },
+      { lang: 'en', namespace: 'config', key: 'endpoint', value: 'Endpoint' },
+      { lang: 'en', namespace: 'config', key: 'delayMs', value: 'Delay (ms)' },
+      { lang: 'en', namespace: 'config', key: 'description', value: 'Description' },
+      { lang: 'en', namespace: 'config', key: 'loadingDelaySettings', value: 'Loading delay settings...' },
+      { lang: 'en', namespace: 'config', key: 'delaySettingsSaved', value: 'Delay settings saved successfully!' },
+      { lang: 'en', namespace: 'config', key: 'delaySettingsError', value: 'Error saving delay settings' },
       
       // Hungarian
       { lang: 'hu', namespace: 'config', key: 'title', value: 'Beállítások' },
@@ -106,6 +125,14 @@ function initializeDatabase() {
       { lang: 'hu', namespace: 'config', key: 'noTranslations', value: 'Nem találhatók fordítások ehhez a nyelvhez.' },
       { lang: 'hu', namespace: 'config', key: 'translationSaved', value: 'A "{{key}}" fordítás sikeresen mentve!' },
       { lang: 'hu', namespace: 'config', key: 'translationError', value: 'Hiba a "{{key}}" fordítás mentésekor' },
+      { lang: 'hu', namespace: 'config', key: 'delaySettings', value: 'API késleltetési beállítások' },
+      { lang: 'hu', namespace: 'config', key: 'delaySettingsDesc', value: 'Válaszidő késleltetések beállítása különböző API végpontokhoz a betöltési állapotok szimulálásához.' },
+      { lang: 'hu', namespace: 'config', key: 'endpoint', value: 'Végpont' },
+      { lang: 'hu', namespace: 'config', key: 'delayMs', value: 'Késleltetés (ms)' },
+      { lang: 'hu', namespace: 'config', key: 'description', value: 'Leírás' },
+      { lang: 'hu', namespace: 'config', key: 'loadingDelaySettings', value: 'Késleltetési beállítások betöltése...' },
+      { lang: 'hu', namespace: 'config', key: 'delaySettingsSaved', value: 'Késleltetési beállítások sikeresen mentve!' },
+      { lang: 'hu', namespace: 'config', key: 'delaySettingsError', value: 'Hiba a késleltetési beállítások mentésekor' },
       
       // Sindhi
       { lang: 'sd', namespace: 'config', key: 'title', value: 'ترتيبات' },
@@ -118,6 +145,14 @@ function initializeDatabase() {
       { lang: 'sd', namespace: 'config', key: 'noTranslations', value: 'هن ٻولي لاءِ ڪو ترجمو نه مليو.' },
       { lang: 'sd', namespace: 'config', key: 'translationSaved', value: '"{{key}}" ترجمو ڪاميابيءَ سان محفوظ ٿيو!' },
       { lang: 'sd', namespace: 'config', key: 'translationError', value: '"{{key}}" ترجمي کي محفوظ ڪرڻ ۾ خرابي' },
+      { lang: 'sd', namespace: 'config', key: 'delaySettings', value: 'API دير جون سيٽنگس' },
+      { lang: 'sd', namespace: 'config', key: 'delaySettingsDesc', value: 'مختلف API endpoints لاءِ جوابي دير کي ترتيب ڏيو لوڊنگ حالتن جي نقل لاءِ.' },
+      { lang: 'sd', namespace: 'config', key: 'endpoint', value: 'Endpoint' },
+      { lang: 'sd', namespace: 'config', key: 'delayMs', value: 'دير (ms)' },
+      { lang: 'sd', namespace: 'config', key: 'description', value: 'تفصيل' },
+      { lang: 'sd', namespace: 'config', key: 'loadingDelaySettings', value: 'دير جون سيٽنگس لوڊ ٿي رهيون آهن...' },
+      { lang: 'sd', namespace: 'config', key: 'delaySettingsSaved', value: 'دير جون سيٽنگس ڪاميابيءَ سان محفوظ ٿيون!' },
+      { lang: 'sd', namespace: 'config', key: 'delaySettingsError', value: 'دير جون سيٽنگس محفوظ ڪرڻ ۾ خرابي' },
 
       // Notes namespace - notes page
       // English
@@ -233,7 +268,27 @@ function initializeDatabase() {
 
     stmt.finalize();
 
-    console.log('Database initialized with translations and notes.');
+    // Insert initial delay settings
+    const delaySettings = [
+      { endpoint: 'translations_by_namespace', delay: 500, description: 'Delay for /api/translations/:language endpoint (all namespaces)' },
+      { endpoint: 'translations_single_namespace', delay: 500, description: 'Delay for /api/translations/:language/:namespace endpoint' },
+      { endpoint: 'translations_single_value', delay: 0, description: 'Delay for /api/translations/:language/:namespace/:key endpoint (single value)' },
+      { endpoint: 'languages', delay: 0, description: 'Delay for /api/languages endpoint' },
+      { endpoint: 'notes', delay: 0, description: 'Delay for /api/notes endpoints' }
+    ];
+
+    const delayStmt = db.prepare(`
+      INSERT OR REPLACE INTO delay_settings (endpoint_name, delay_ms, description)
+      VALUES (?, ?, ?)
+    `);
+
+    delaySettings.forEach(({ endpoint, delay, description }) => {
+      delayStmt.run(endpoint, delay, description);
+    });
+
+    delayStmt.finalize();
+
+    console.log('Database initialized with translations, notes, and delay settings.');
   });
   
   // Insert initial notes about i18next implementation (only if notes table is empty)
@@ -263,6 +318,24 @@ function initializeDatabase() {
 
       noteStmt.finalize();
     }
+  });
+}
+
+export function getSingleTranslation(languageCode, namespace, translationKey, callback) {
+  const query = `
+    SELECT translation_value 
+    FROM translations 
+    WHERE language_code = ? AND namespace = ? AND translation_key = ?
+  `;
+  
+  db.get(query, [languageCode, namespace, translationKey], (err, row) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    // Return the value or null if not found
+    callback(null, row ? row.translation_value : null);
   });
 }
 
@@ -425,6 +498,56 @@ export function deleteNote(noteId, callback) {
     
     if (this.changes === 0) {
       callback(new Error('Note not found'), null);
+      return;
+    }
+    
+    callback(null, { success: true, changes: this.changes });
+  });
+}
+
+// Delay settings CRUD operations
+export function getAllDelaySettings(callback) {
+  const query = `SELECT * FROM delay_settings ORDER BY endpoint_name`;
+  
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    callback(null, rows);
+  });
+}
+
+export function getDelayForEndpoint(endpointName, callback) {
+  const query = `SELECT delay_ms FROM delay_settings WHERE endpoint_name = ?`;
+  
+  db.get(query, [endpointName], (err, row) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    // Return 0 if no setting found
+    callback(null, row ? row.delay_ms : 0);
+  });
+}
+
+export function updateDelaySettings(endpointName, delayMs, callback) {
+  const query = `
+    UPDATE delay_settings 
+    SET delay_ms = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE endpoint_name = ?
+  `;
+  
+  db.run(query, [delayMs, endpointName], function(err) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    
+    if (this.changes === 0) {
+      callback(new Error('Delay setting not found'), null);
       return;
     }
     

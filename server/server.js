@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { getTranslations, getTranslationsByNamespace, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote } from './database.js';
+import { getTranslations, getTranslationsByNamespace, getAllLanguages, updateTranslation, getAllNotes, createNote, updateNote, deleteNote, getAllDelaySettings, getDelayForEndpoint, updateDelaySettings, getSingleTranslation } from './database.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -10,13 +10,56 @@ app.use(express.json());
 
 // Get all available languages
 app.get('/api/languages', (req, res) => {
-  getAllLanguages((err, languages) => {
-    if (err) {
-      console.error('Error fetching languages:', err);
-      res.status(500).json({ error: 'Failed to fetch languages' });
-      return;
+  getDelayForEndpoint('languages', (delayErr, delay) => {
+    if (delayErr) {
+      console.error('Error fetching delay setting:', delayErr);
+      delay = 0; // Fallback to no delay
     }
-    res.json({ languages });
+    
+    setTimeout(() => {
+      getAllLanguages((err, languages) => {
+        if (err) {
+          console.error('Error fetching languages:', err);
+          res.status(500).json({ error: 'Failed to fetch languages' });
+          return;
+        }
+        res.json({ languages });
+      });
+    }, delay);
+  });
+});
+
+// Get a single translation value
+app.get('/api/translations/:language/:namespace/:key', (req, res) => {
+  const { language, namespace, key } = req.params;
+  
+  getDelayForEndpoint('translations_single_value', (delayErr, delay) => {
+    if (delayErr) {
+      console.error('Error fetching delay setting:', delayErr);
+      delay = 0; // Fallback to no delay for single values
+    }
+    
+    setTimeout(() => {
+      getSingleTranslation(language, namespace, key, (err, value) => {
+        if (err) {
+          console.error('Error fetching single translation:', err);
+          res.status(500).json({ error: 'Failed to fetch translation' });
+          return;
+        }
+        
+        if (value === null) {
+          res.status(404).json({ error: 'Translation not found' });
+          return;
+        }
+        
+        res.json({ 
+          language,
+          namespace,
+          key,
+          value 
+        });
+      });
+    }, delay);
   });
 });
 
@@ -24,23 +67,32 @@ app.get('/api/languages', (req, res) => {
 app.get('/api/translations/:language/:namespace', (req, res) => {
   const { language, namespace } = req.params;
   
-  getTranslations(language, namespace, (err, translations) => {
-    if (err) {
-      console.error('Error fetching translations:', err);
-      res.status(500).json({ error: 'Failed to fetch translations' });
-      return;
+  getDelayForEndpoint('translations_single_namespace', (delayErr, delay) => {
+    if (delayErr) {
+      console.error('Error fetching delay setting:', delayErr);
+      delay = 500; // Fallback to 500ms delay
     }
     
-    if (Object.keys(translations).length === 0) {
-      res.status(404).json({ error: 'Namespace not found' });
-      return;
-    }
-    
-    res.json({ 
-      language,
-      namespace,
-      translations 
-    });
+    setTimeout(() => {
+      getTranslations(language, namespace, (err, translations) => {
+        if (err) {
+          console.error('Error fetching translations:', err);
+          res.status(500).json({ error: 'Failed to fetch translations' });
+          return;
+        }
+        
+        if (Object.keys(translations).length === 0) {
+          res.status(404).json({ error: 'Namespace not found' });
+          return;
+        }
+        
+        res.json({ 
+          language,
+          namespace,
+          translations 
+        });
+      });
+    }, delay);
   });
 });
 
@@ -48,26 +100,32 @@ app.get('/api/translations/:language/:namespace', (req, res) => {
 app.get('/api/translations/:language', (req, res) => {
   const { language } = req.params;
   
-  // Add 2 second delay to simulate loading
-  setTimeout(() => {
-    getTranslationsByNamespace(language, (err, translationsByNamespace) => {
-      if (err) {
-        console.error('Error fetching translations:', err);
-        res.status(500).json({ error: 'Failed to fetch translations' });
-        return;
-      }
-      
-      if (Object.keys(translationsByNamespace).length === 0) {
-        res.status(404).json({ error: 'Language not found' });
-        return;
-      }
-      
-      res.json({ 
-        language,
-        translations: translationsByNamespace 
+  getDelayForEndpoint('translations_by_namespace', (delayErr, delay) => {
+    if (delayErr) {
+      console.error('Error fetching delay setting:', delayErr);
+      delay = 500; // Fallback to 500ms delay
+    }
+    
+    setTimeout(() => {
+      getTranslationsByNamespace(language, (err, translationsByNamespace) => {
+        if (err) {
+          console.error('Error fetching translations:', err);
+          res.status(500).json({ error: 'Failed to fetch translations' });
+          return;
+        }
+        
+        if (Object.keys(translationsByNamespace).length === 0) {
+          res.status(404).json({ error: 'Language not found' });
+          return;
+        }
+        
+        res.json({ 
+          language,
+          translations: translationsByNamespace 
+        });
       });
-    });
-  }, 2000);
+    }, delay);
+  });
 });
 
 // Update a specific translation
@@ -104,13 +162,22 @@ app.put('/api/translations/:language/:namespace/:key', (req, res) => {
 
 // Notes endpoints
 app.get('/api/notes', (req, res) => {
-  getAllNotes((err, notes) => {
-    if (err) {
-      console.error('Error fetching notes:', err);
-      res.status(500).json({ error: 'Failed to fetch notes' });
-      return;
+  getDelayForEndpoint('notes', (delayErr, delay) => {
+    if (delayErr) {
+      console.error('Error fetching delay setting:', delayErr);
+      delay = 0; // Fallback to no delay
     }
-    res.json({ notes });
+    
+    setTimeout(() => {
+      getAllNotes((err, notes) => {
+        if (err) {
+          console.error('Error fetching notes:', err);
+          res.status(500).json({ error: 'Failed to fetch notes' });
+          return;
+        }
+        res.json({ notes });
+      });
+    }, delay);
   });
 });
 
@@ -187,6 +254,47 @@ app.delete('/api/notes/:id', (req, res) => {
     res.json({
       success: true,
       noteId: parseInt(id),
+      changes: result.changes
+    });
+  });
+});
+
+// Delay settings endpoints
+app.get('/api/delay-settings', (req, res) => {
+  getAllDelaySettings((err, settings) => {
+    if (err) {
+      console.error('Error fetching delay settings:', err);
+      res.status(500).json({ error: 'Failed to fetch delay settings' });
+      return;
+    }
+    res.json({ settings });
+  });
+});
+
+app.put('/api/delay-settings/:endpoint', (req, res) => {
+  const { endpoint } = req.params;
+  const { delay_ms } = req.body;
+  
+  if (delay_ms === undefined || delay_ms < 0) {
+    res.status(400).json({ error: 'Valid delay_ms value is required (>= 0)' });
+    return;
+  }
+  
+  updateDelaySettings(endpoint, parseInt(delay_ms), (err, result) => {
+    if (err) {
+      console.error('Error updating delay settings:', err);
+      if (err.message === 'Delay setting not found') {
+        res.status(404).json({ error: 'Delay setting not found' });
+      } else {
+        res.status(500).json({ error: 'Failed to update delay settings' });
+      }
+      return;
+    }
+    
+    res.json({ 
+      success: true,
+      endpoint,
+      delay_ms: parseInt(delay_ms),
       changes: result.changes
     });
   });
