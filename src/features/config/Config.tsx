@@ -17,12 +17,21 @@ interface NamespaceGroup {
   translations: Translation[]
 }
 
+interface ExtractedKey {
+  namespace: string
+  translation_key: string
+  file_path: string
+  line_number: number
+  usage_count: number
+}
+
 function Config() {
   const { t } = useTranslation(['config', 'general'], { useSuspense: true })
   const [availableLanguages, setAvailableLanguages] = useState<Array<{code: string, name: string}>>([])
   const [selectedLanguage, setSelectedLanguage] = useState('')
   const [translations, setTranslations] = useState<Translation[]>([])
   const [namespaceGroups, setNamespaceGroups] = useState<NamespaceGroup[]>([])
+  const [extractedKeys, setExtractedKeys] = useState<ExtractedKey[]>([])
   const [collapsedNamespaces, setCollapsedNamespaces] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
@@ -37,13 +46,26 @@ function Config() {
       }
     }
     loadLanguages()
+    loadExtractedKeys()
   }, [])
+
+  const loadExtractedKeys = async () => {
+    try {
+      const response = await fetch('/api/extracted-keys')
+      if (response.ok) {
+        const data = await response.json()
+        setExtractedKeys(data.keys)
+      }
+    } catch (error) {
+      console.error('Error loading extracted keys:', error)
+    }
+  }
 
   useEffect(() => {
     if (selectedLanguage) {
       loadTranslations(selectedLanguage)
     }
-  }, [selectedLanguage])
+  }, [selectedLanguage, extractedKeys])
 
   const loadTranslations = async (language: string) => {
     setIsLoading(true)
@@ -71,32 +93,51 @@ function Config() {
         }
       }
       
-      // Combine current and missing translations
+      // Create a map of extracted keys for quick lookup
+      const extractedKeysMap = new Map<string, ExtractedKey>()
+      extractedKeys.forEach(key => {
+        const fullKey = `${key.namespace}:${key.translation_key}`
+        extractedKeysMap.set(fullKey, key)
+      })
+      
+      // Combine all possible keys from translations and extracted keys
       const translationArray: Translation[] = []
       const groups: NamespaceGroup[] = []
+      
+      // Get all namespaces from translations and extracted keys
       const allNamespaces = new Set([
         ...Object.keys(currentTranslations),
-        ...Object.keys(englishTranslations)
+        ...Object.keys(englishTranslations),
+        ...extractedKeys.map(key => key.namespace)
       ])
       
       allNamespaces.forEach(namespace => {
         const currentNs = currentTranslations[namespace] || {}
         const englishNs = englishTranslations[namespace] || {}
         
-        // Collect all keys (existing + missing) and create translations
+        // Get all keys from all sources
         const allKeys = new Set([
           ...Object.keys(currentNs),
-          ...(language !== 'en' ? Object.keys(englishNs) : [])
+          ...(language !== 'en' ? Object.keys(englishNs) : []),
+          ...extractedKeys
+            .filter(key => key.namespace === namespace)
+            .map(key => key.translation_key)
         ])
         
         const namespaceTranslations: Translation[] = []
         
         // Create translations for all keys
         allKeys.forEach(key => {
+          const fullKey = `${namespace}:${key}`
+          const hasCurrentTranslation = key in currentNs
+          const hasEnglishTranslation = key in englishNs
+          const isInExtractedKeys = extractedKeysMap.has(fullKey)
+          
           const translation = {
-            key: `${namespace}:${key}`,
+            key: fullKey,
             value: currentNs[key] || '' // Empty if missing
           }
+          
           translationArray.push(translation)
           namespaceTranslations.push(translation)
         })
@@ -250,6 +291,35 @@ function Config() {
     return namespace.charAt(0).toUpperCase() + namespace.slice(1)
   }
 
+  const getTranslationStatus = (key: string, value: string, language: string) => {
+    const extractedKeysMap = new Map<string, ExtractedKey>()
+    extractedKeys.forEach(extractedKey => {
+      const fullKey = `${extractedKey.namespace}:${extractedKey.translation_key}`
+      extractedKeysMap.set(fullKey, extractedKey)
+    })
+    
+    const isInExtractedKeys = extractedKeysMap.has(key)
+    const hasValue = value !== ''
+    const isEnglish = language === 'en'
+    
+    // For extracted keys that don't have translations in current language
+    if (isInExtractedKeys && !hasValue && !isEnglish) {
+      return 'newInCode'
+    }
+    
+    // For missing translations (exist in English but not in current language)
+    if (!hasValue && !isEnglish) {
+      return 'missing'
+    }
+    
+    // For translations that exist but are not used in code
+    if (hasValue && !isInExtractedKeys && !isEnglish) {
+      return 'notUsed'
+    }
+    
+    return 'normal'
+  }
+
 
   return (
     <div className="page">
@@ -360,6 +430,7 @@ function Config() {
                             translationKey={translation.key}
                             value={translation.value}
                             selectedLanguage={selectedLanguage}
+                            status={getTranslationStatus(translation.key, translation.value, selectedLanguage)}
                             onSave={saveTranslation}
                             onDelete={deleteTranslation}
                             onAdd={addTranslation}

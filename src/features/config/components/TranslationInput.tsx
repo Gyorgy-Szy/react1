@@ -6,12 +6,13 @@ interface TranslationInputProps {
   translationKey: string
   value: string
   selectedLanguage: string
+  status?: 'normal' | 'missing' | 'newInCode' | 'notUsed'
   onSave: (key: string, value: string) => void
   onDelete?: (key: string) => void
   onAdd?: (key: string, value: string) => void
 }
 
-export default function TranslationInput({ translationKey, value, selectedLanguage, onSave, onDelete, onAdd }: TranslationInputProps) {
+export default function TranslationInput({ translationKey, value, selectedLanguage, status = 'normal', onSave, onDelete, onAdd }: TranslationInputProps) {
   const { t } = useTranslation(['general', 'config'])
   const [isEditing, setIsEditing] = useState(false)
   const [isLoadingEdit, setIsLoadingEdit] = useState(false)
@@ -21,9 +22,11 @@ export default function TranslationInput({ translationKey, value, selectedLangua
 
   const isMissing = value === '' // Empty value indicates missing translation
   const isEnglish = selectedLanguage === 'en'
+  const isNewInCode = status === 'newInCode'
+  const isNotUsed = status === 'notUsed'
 
   const handleSave = () => {
-    if (isMissing && onAdd) {
+    if ((isMissing || isNewInCode) && onAdd) {
       onAdd(translationKey, editValue)
     } else {
       onSave(translationKey, editValue)
@@ -86,8 +89,14 @@ export default function TranslationInput({ translationKey, value, selectedLangua
         <div className="translation-item">
           <span className="translation-label">
             {translationKey}
-            {isMissing && !isEnglish && (
+            {isNewInCode && !isEnglish && (
+              <span className="new-in-code-indicator"> {t('config:newInCode')}</span>
+            )}
+            {isMissing && !isNewInCode && !isEnglish && (
               <span className="missing-indicator"> {t('config:missing')}</span>
+            )}
+            {isNotUsed && !isEnglish && (
+              <span className="not-used-indicator"> {t('config:notUsedInCode')}</span>
             )}
           </span>
           {!isEditing && !isLoadingEdit && (
@@ -95,9 +104,9 @@ export default function TranslationInput({ translationKey, value, selectedLangua
               <button
                 onClick={handleEdit}
                 className="btn"
-                title={isMissing ? t('config:add') : t('edit')}
+                title={isMissing || isNewInCode ? t('config:add') : t('edit')}
               >
-                {isMissing ? '➕' : '✏️'}
+                {isMissing || isNewInCode ? '➕' : '✏️'}
               </button>
               {!isMissing && !isEnglish && onDelete && (
                 <button
@@ -140,7 +149,7 @@ export default function TranslationInput({ translationKey, value, selectedLangua
                 onClick={handleSave}
                 className="btn-save"
               >
-                ✅ {isMissing ? t('config:add') : t('save')}
+                ✅ {isMissing || isNewInCode ? t('config:add') : t('save')}
               </button>
               <button
                 onClick={handleCancel}

@@ -799,9 +799,21 @@ body {
   flex-direction: row-reverse;
 }
 
-/* Missing Translation Styles */
+/* Translation Status Indicators */
 .missing-indicator {
   color: #f59e0b;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.new-in-code-indicator {
+  color: #10b981;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.not-used-indicator {
+  color: #ef4444;
   font-style: italic;
   font-weight: 500;
 }
