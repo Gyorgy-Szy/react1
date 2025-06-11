@@ -29,6 +29,15 @@ function Testbay() {
             </div>
             
             <div className="test-case mb-2">
+              <div className="test-case-label">Pluralization: 0:</div>
+              <div className="test-case-content">{t('general:count', {count: 0})}</div>
+              <div className="test-case-label">Pluralization: 1:</div>
+              <div className="test-case-content">{t('general:count', {count: 1})}</div>
+              <div className="test-case-label">Pluralization: 2:</div>
+              <div className="test-case-content">{t('general:count', {count: 2})}</div>
+            </div>
+            
+            <div className="test-case mb-2">
               <div className="test-case-label">{t('testbay:missingTranslationLabel')} (testbay:missingTranslation, not the "testbay:missingTranslationLabel"):</div>
               <div className="test-case-content">{t('testbay:missingTranslation')}</div>
             </div>
